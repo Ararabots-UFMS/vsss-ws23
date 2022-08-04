@@ -4,6 +4,7 @@ from rclpy.node import Node
 from sys_interfaces.msg import DebugTopic # CHANGE
 
 
+
 class MinimalPublisher(Node):
 
     def __init__(self):
