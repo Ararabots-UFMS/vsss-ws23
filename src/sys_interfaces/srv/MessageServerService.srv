@@ -1,0 +1,5 @@
+uint8       opcode
+uint8       socket_id
+uint8[6]    robot_mac_addr
+---
+uint8       response

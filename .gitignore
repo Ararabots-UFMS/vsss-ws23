@@ -5,6 +5,7 @@
 build/
 install/
 devel/
+log/
 
 src/venv/
 

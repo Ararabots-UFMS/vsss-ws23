@@ -1,0 +1,1 @@
+uint8[5]    sockets_status
