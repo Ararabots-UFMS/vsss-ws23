@@ -5,7 +5,7 @@ from rclpy.node import Node
 from sys_interfaces.msg import ThingsPosition # CHANGE
 
 import sim_cam.sim.packet_pb2 as packet_pb2
-from sim_cam.utils.socket_interfaces import ReceiverSocket
+from utils.socket_interfaces import ReceiverSocket
 
 class VisionOperations(Enum):
     """

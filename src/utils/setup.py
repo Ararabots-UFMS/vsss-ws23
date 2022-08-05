@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'sim_cam'
+package_name = 'utils'
 
 setup(
     name=package_name,
@@ -14,13 +14,12 @@ setup(
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='user',
-    maintainer_email='user@todo.todo',
+    maintainer_email='marquesnavarezi@hotmail.com',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'publisher = sim_cam.sim_node:main',
         ],
     },
 )
