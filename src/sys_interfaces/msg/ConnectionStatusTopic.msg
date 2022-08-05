@@ -1,1 +1,1 @@
-uint8[5]    sockets_status
+uint8[5] sockets_status
