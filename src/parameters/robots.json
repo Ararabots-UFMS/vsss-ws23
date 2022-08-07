@@ -1,0 +1,37 @@
+{
+    "robot_1": {
+        "active": 0,
+        "bluetooth_mac_address": "walle",
+        "body_id": "simulation_parsian",
+        "role": "Goalkeeper",
+        "tag_number": 0
+    },
+    "robot_2": {
+        "active": 1,
+        "bluetooth_mac_address": "walle",
+        "body_id": "simulation_parsian",
+        "role": "Attacker",
+        "tag_number": 1
+    },
+    "robot_3": {
+        "active": 1,
+        "bluetooth_mac_address": "tucao",
+        "body_id": "simulation_parsian",
+        "role": "Attacker",
+        "tag_number": 2
+    },
+    "robot_4": {
+        "active": 0,
+        "bluetooth_mac_address": "nenhum",
+        "body_id": "nenhum",
+        "role": "Attacker",
+        "tag_number": 3
+    },
+    "robot_5": {
+        "active": 0,
+        "bluetooth_mac_address": "nenhum",
+        "body_id": "nenhum",
+        "role": "Attacker",
+        "tag_number": 4
+    }
+}
