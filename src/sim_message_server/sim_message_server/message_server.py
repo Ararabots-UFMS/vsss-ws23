@@ -8,13 +8,13 @@ import rclpy
 from rclpy.node import Node
 from collections import namedtuple
 import heapq as hp
-from threading import Thread, Lock, Semaphore
-from ctypes import c_ubyte
+from threading import Lock, Semaphore
+#from ctypes import c_ubyte
 from utils.socket_interfaces import SenderSocket
 
-from ROS.message_server_publisher import MessageServerPublisher
-from message_server_module.opcodes import ServerOpCode
-from verysmall.srv import message_server_service
+from sys_interfaces.srv import MessageServerService
+from sim_message_server.opcodes import ServerOpCode
+from sim_message_server.message_server_publisher import MessageServerPublisher
 
 Message = namedtuple("Message", ["priority", "socket_id", "payload"])
 
@@ -59,13 +59,13 @@ class MessageServer:
         self.default_port = 0x1001
         self._sockets_status = [0] * self._capacity
         suffix = '' if owner_id is None else '_' + owner_id
-        self.service = rospy.Service('message_server_service' + suffix,
-                                     message_server_service,
+        self.service = self._node.create_service(MessageServerService,
+                                    'message_server_service' + suffix,                                     
                                      self._service_request_handler)
 
-        self.topic_publisher = MessageServerPublisher(owner_id)
+        self.topic_publisher = MessageServerPublisher(self._node, owner_id)
 
-        from ROS.message_server_subscriber import MessageServerSubscriber
+        from sim_message_server.message_server_subscriber import MessageServerSubscriber
         self.topic_subscriber = MessageServerSubscriber(self, owner_id)
 
         self._last_check = time()
@@ -81,20 +81,22 @@ class MessageServer:
         
 
     def _service_request_handler(self,
-                                 req: message_server_service) -> int:
-        response = ServerOpCode.ERROR
-        if req.opcode == ServerOpCode.ADD.value:
-            response = self._add_socket(req.socket_id, bytes(req.robot_mac_addr))
+                                 request, response) -> int:
+        response_value = ServerOpCode.ERROR
+        if request.opcode == ServerOpCode.ADD.value:
+            response_value = self._add_socket(request.socket_id, bytes(request.robot_mac_addr))
 
-        elif req.opcode == ServerOpCode.REMOVE.value:
-            response = self._remove_socket(req.socket_id)
+        elif request.opcode == ServerOpCode.REMOVE.value:
+            response_value = self._remove_socket(request.socket_id)
 
-        elif req.opcode == ServerOpCode.CHANGE_COLORS.value:
-            response = self._change_team_color(req.socket_id)
+        elif request.opcode == ServerOpCode.CHANGE_COLORS.value:
+            response_value = self._change_team_color(request.socket_id)
 
         self.topic_publisher.publish(self._sockets_status)
 
-        return response.value
+        response.response = response_value
+
+        return response
 
     def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:       
         # if self._simulator_mode:
@@ -170,20 +172,10 @@ class MessageServer:
         self._server_semaphore.release()
 
     def send_message(self, id_: int, payload: List) -> None:
-        released = False
+        # released = False
 
         if self._simulator_mode or (id_ in self._sockets.keys()):
             self._sim_send(id_, payload)
-            
-            """ try:
-                if self._simulator_mode:
-                    self._sim_send(id_, payload)
-                else:
-                    self._send(self._sockets[id_][1], payload)
-            
-            except Exception as e:
-                rospy.logfatal("TIMEOUT EXCEPTION " + repr(e))
-                self._remove_socket(id_) """
 
     def on_shutdown(self) -> None:
         for _, socket in self._sockets.values():

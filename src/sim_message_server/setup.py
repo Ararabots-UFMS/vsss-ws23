@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'publisher = sim_message_server.message_server_node:main',
+            'MessageServerNode = sim_message_server.message_server_node:main',
         ],
     },
 )
