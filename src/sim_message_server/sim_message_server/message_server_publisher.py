@@ -10,16 +10,16 @@ class MessageServerPublisher:
     def __init__(self, node: Node, owner_id: str = None):
         self.TAG = "MESSAGE SERVER PUBLISHER"
         self._node = node
-        suffix = '' if owner_id is None else '_' + owner_id
+        self._msg = ConnectionStatusTopic()        
         self.publisher = self._node.create_publisher(
                             ConnectionStatusTopic,
-                            'connection_status_topic' + suffix,
+                            'connection_status_topic',
                             qos_profile=10)
 
-    def publish(self, sockets_status: List) -> None:
-        msg = sockets_status
+    def publish(self, sockets_status: np.array) -> None:
+        self._msg.sockets_status = sockets_status
         try:
-            self.publisher.publish(msg)
+            self.publisher.publish(self._msg)
         except Exception as exception:
-            self._node.get_logger().fatal(self.TAG + ": UNABLE TO PUBLISH. " + repr(exception))
+            self._node.get_logger().fatal(self.TAG + ": UNABLE TO PUBLISH. " + repr(exception) + repr(self._msg))
             raise exception

@@ -11,13 +11,14 @@ from sim_message_server.message_server import MessageServer
 class MessageServerNode(Node):
 
     def __init__(self):
-        super().__init__('message_server')
-
+        
         try:
             owner_id = argv[1]
         except Exception as exception:
             owner_id = 'Player_' + str(randint(0, 99999))
-            self.get_logger().fatal(str(exception))
+
+        super().__init__('message_server', namespace=owner_id)
+
         try:
             team_color = int(argv[3]) if argv[3] else 0
         except Exception as exception:
@@ -36,11 +37,18 @@ def main(args=None):
     
     message_server = MessageServerNode()
 
-    rclpy.spin(message_server)
-
-    message_server.destroy_node()
-    rclpy.shutdown()
-
+    try:
+        rclpy.spin(message_server)
+    except KeyboardInterrupt:
+        print('server stopped cleanly')
+    except BaseException:
+        print('exception in server')
+        raise
+    finally:
+        # Destroy the node explicitly
+        # (optional - Done automatically when node is garbage collected)
+        message_server.destroy_node()
+        rclpy.try_shutdown()
 
 if __name__ == '__main__':
     main()

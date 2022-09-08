@@ -20,8 +20,8 @@ class VisionOperations(Enum):
 
 class MinimalPublisher(Node):
 
-    UDP_IP = "127.0.0.1"
-    UDP_PORT = 10020
+    UDP_IP = "224.0.0.1"
+    UDP_PORT = 10002
 
     def __init__(self):
         super().__init__('vision')
