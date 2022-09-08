@@ -9,16 +9,16 @@ from copy import deepcopy
 import numpy as np
 # import rospy
 
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
 from robot.movement.definitions import OpCodes
 from robot.movement.univector.un_field import UnivectorField
 
-from robot.strategy.arena_utils import HALF_ARENA_HEIGHT, get_defense_range_height, LEFT_AREA_CENTER_X, RIGHT_AREA_CENTER_X,\
+from strategy.arena_utils import HALF_ARENA_HEIGHT, get_defense_range_height, LEFT_AREA_CENTER_X, RIGHT_AREA_CENTER_X,\
     ROBOT_SIZE, is_on_y_upper_half, RIGHT, HALF_ARENA_WIDTH, on_attack_side, univector_pos_section, ArenaSections
-from robot.strategy.behaviour import ACTION, TreeNode
-from robot.strategy.behaviour import TaskStatus, BlackBoard, NO_ACTION
-from robot.strategy.strategy_utils import spin_direction, object_in_defender_range
+from strategy.behaviour import ACTION, TreeNode
+from strategy.behaviour import TaskStatus, BlackBoard, NO_ACTION
+from strategy.strategy_utils import spin_direction, object_in_defender_range
 from utils.json_handler import JsonHandler
 from utils.math_utils import predict_speed, angle_between, clamp
 

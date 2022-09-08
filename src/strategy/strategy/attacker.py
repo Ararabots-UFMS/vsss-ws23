@@ -1,24 +1,24 @@
 import math as mth
 # import rospy
 
-from robot.strategy.actions.game_behaviours import IsBallInGoalkeeperSection, IsBehindBall,\
+from strategy.actions.game_behaviours import IsBallInGoalkeeperSection, IsBehindBall,\
  IsRobotInsideEnemyGoalLine, IsBallInsideSections, IsNearBall,\
  IsBallInBorder, IsRobotInsideSections, \
  AmIAttacking 
 
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
-from robot.strategy.actions.movement_behaviours import GoToBallUsingUnivector,\
+from strategy.actions.movement_behaviours import GoToBallUsingUnivector,\
      SpinTask, ChargeWithBall, GoToBallUsingMove2Point, CanUseMoveToPointSafely,\
      GoToPositionUsingUnivector, GoToPosition, AlignWithAxis, FollowAlly, StopAction, \
      RecoverBallUsingUnivector
 
-from robot.strategy.actions.state_behaviours import InState
-from robot.strategy.base_trees import BaseTree, FreeWayAttack
-from robot.strategy.behaviour import *
-from robot.strategy.strategy_utils import GameStates
-from robot.strategy.arena_utils import ArenaSections, univector_pos_section
-from robot.strategy.actions.decorators import SafeHeadOnBorder, InvertOutput
+from strategy.actions.state_behaviours import InState
+from strategy.base_trees import BaseTree, FreeWayAttack
+from strategy.behaviour import *
+from strategy.strategy_utils import GameStates
+from strategy.arena_utils import ArenaSections, univector_pos_section
+from strategy.actions.decorators import SafeHeadOnBorder, InvertOutput
 
 
 from utils.math_utils import FORWARD, BACKWARDS, DEG2RAD

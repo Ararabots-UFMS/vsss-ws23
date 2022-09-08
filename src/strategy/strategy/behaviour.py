@@ -7,8 +7,8 @@ from typing import Tuple
 import numpy as np
 from itertools import count
 from robot.movement.definitions import OpCodes
-from robot.strategy.arena_utils import RIGHT, LEFT
-from robot.strategy.strategy_utils import GameStates
+from strategy.arena_utils import RIGHT, LEFT
+from strategy.strategy_utils import GameStates
 from utils import physics
 from utils.json_handler import JsonHandler
 from utils.linalg import *

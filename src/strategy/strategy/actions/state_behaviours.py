@@ -1,5 +1,5 @@
-from robot.strategy.behaviour import TaskStatus, Sequence, BlackBoard
-from robot.strategy.strategy_utils import GameStates
+from strategy.behaviour import TaskStatus, Sequence, BlackBoard
+from strategy.strategy_utils import GameStates
 from robot.movement.definitions import OpCodes
 
 

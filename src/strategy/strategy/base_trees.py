@@ -1,11 +1,11 @@
-from robot.strategy.behaviour import BlackBoard, Sequence, Selector, TaskStatus
-from robot.strategy.actions.state_behaviours import InState, ChangeState
-from robot.strategy.actions.game_behaviours import IsBehindBall, IsTheWayFree, IsInsideMetaRange
-from robot.strategy.actions.movement_behaviours import *
-from robot.strategy.strategy_utils import GameStates
-from robot.strategy.actions.decorators import UseFrontHead
+from strategy.behaviour import BlackBoard, Sequence, Selector, TaskStatus
+from strategy.actions.state_behaviours import InState, ChangeState
+from strategy.actions.game_behaviours import IsBehindBall, IsTheWayFree, IsInsideMetaRange
+from strategy.actions.movement_behaviours import *
+from strategy.strategy_utils import GameStates
+from strategy.actions.decorators import UseFrontHead
 from utils.linalg import Vec2D
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
 class Penalty(Sequence):
     def __init__(self, name='Penalty'):

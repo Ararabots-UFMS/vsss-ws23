@@ -7,9 +7,9 @@ import utils.math_utils as mth
 from robot.PID import PIDController
 from robot.hardware import RobotHardware
 from robot.movement.definitions import OpCodes
-from robot.strategy.behaviour import BlackBoard
+from strategy.behaviour import BlackBoard
 from utils.math_utils import RAD2DEG, DEG2RAD, FORWARD, BACKWARDS, clamp
-from robot.strategy.arena_utils import ArenaSections, univector_pos_section
+from strategy.arena_utils import ArenaSections, univector_pos_section
 from utils.linalg import *
 
 Constants = Tuple[int, float, float, float]

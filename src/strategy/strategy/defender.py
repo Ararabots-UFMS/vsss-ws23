@@ -1,12 +1,12 @@
-from robot.strategy.actions.game_behaviours import *
-from robot.strategy.actions.movement_behaviours import MarkBallOnAxis, GoToBallUsingUnivector, SpinTask, \
+from strategy.actions.game_behaviours import *
+from strategy.actions.movement_behaviours import MarkBallOnAxis, GoToBallUsingUnivector, SpinTask, \
     GoToBallUsingMove2Point, ChargeWithBall, GoBack, FollowAlly, GoToDefenseRange, GoToPosition, AlignWithAxis
-from robot.strategy.actions.state_behaviours import InState
-from robot.strategy.actions.decorators import InvertOutput
-from robot.strategy.base_trees import BaseTree
-from robot.strategy.behaviour import *
-from robot.strategy.strategy_utils import GameStates
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.actions.state_behaviours import InState
+from strategy.actions.decorators import InvertOutput
+from strategy.base_trees import BaseTree
+from strategy.behaviour import *
+from strategy.strategy_utils import GameStates
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
 
 class Defender(BaseTree):

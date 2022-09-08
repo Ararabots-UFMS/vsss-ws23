@@ -1,15 +1,15 @@
 from typing import Iterable
 
-from robot.strategy.actions.decorators import InvertOutput, DoNTimes, StatusChanged, KeepRunning
-from robot.strategy.actions.game_behaviours import *
-from robot.strategy.actions.movement_behaviours import *
-from robot.strategy.actions.state_behaviours import InState
-from robot.strategy.arena_utils import ArenaSections, LEFT, inside_rectangle
-from robot.strategy.base_trees import BaseTree
-from robot.strategy.behaviour import *
-from robot.strategy.strategy_utils import GameStates
+from strategy.actions.decorators import InvertOutput, DoNTimes, StatusChanged, KeepRunning
+from strategy.actions.game_behaviours import *
+from strategy.actions.movement_behaviours import *
+from strategy.actions.state_behaviours import InState
+from strategy.arena_utils import ArenaSections, LEFT, inside_rectangle
+from strategy.base_trees import BaseTree
+from strategy.behaviour import *
+from strategy.strategy_utils import GameStates
 
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 from utils.math_utils import RAD2DEG
 
 

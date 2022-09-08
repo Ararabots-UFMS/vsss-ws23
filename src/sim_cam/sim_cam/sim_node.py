@@ -32,7 +32,16 @@ class MinimalPublisher(Node):
         self.sock = ReceiverSocket.create(self.UDP_IP, self.UDP_PORT)
 
     def tick(self):
-        data, _ = self.sock.recvfrom(1024) # buffer size is 1024 bytes
+       
+        try:
+            data, _ = self.sock.recvfrom(1024) # buffer size is 1024 bytes
+        except KeyboardInterrupt:
+            print('server stopped cleanly')
+            return
+        except BaseException:
+            print('exception in server')
+            raise
+        
         self.message.ParseFromString(data)
 
         pos_offset = 0
@@ -61,8 +70,8 @@ class MinimalPublisher(Node):
         self.msg.ball_pos[0] = (self.message.frame.ball.x/0.8285*85 + 75)*100
         self.msg.ball_pos[1] = (self.message.frame.ball.y/0.6285 * 65 + 65)*100
 
-
-        self.publisher_.publish(self.msg)
+        if self.context.ok():
+            self.publisher_.publish(self.msg)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -73,7 +82,7 @@ def main(args=None):
         minimal_publisher.tick()
 
     minimal_publisher.destroy_node()
-    rclpy.shutdown()
+    rclpy.try_shutdown()
 
 
 if __name__ == '__main__':
