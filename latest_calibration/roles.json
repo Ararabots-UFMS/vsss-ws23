@@ -1,0 +1,6 @@
+{
+  "Attacker" : 0,
+  "Defender" : 1,
+  "Goalkeeper"  : 2,
+  "PID Calibration" : 3
+}

@@ -11,12 +11,11 @@ import heapq as hp
 from threading import Lock, Semaphore
 #from ctypes import c_ubyte
 from utils.socket_interfaces import SenderSocket
-
+import numpy as np
 from sys_interfaces.srv import MessageServerService
-from sim_message_server.opcodes import ServerOpCode
+from message_server.opcodes import ServerOpCode
 from sim_message_server.message_server_publisher import MessageServerPublisher
-
-Message = namedtuple("Message", ["priority", "socket_id", "payload"])
+Message = namedtuple("Message", ["priority", "counter", "socket_id", "payload"])
 
 Seconds = NewType('seconds', float)
 
@@ -42,6 +41,7 @@ class MessageServer:
         self._node = node
 
         self._simulator_mode = simulator_mode
+        self._simulator_multiplyer = 80/255
         self._capacity = max_sockets_capacity
         self._priority_queue = []
         self._max_queue_size = max_queue_size
@@ -57,10 +57,9 @@ class MessageServer:
         self._sockets = {}
         self._num_active_sockets = 0
         self.default_port = 0x1001
-        self._sockets_status = [0] * self._capacity
-        suffix = '' if owner_id is None else '_' + owner_id
+        self._sockets_status = np.zeros(self._capacity, dtype= np.uint8) # [0] * self._capacity
         self.service = self._node.create_service(MessageServerService,
-                                    'message_server_service' + suffix,                                     
+                                    'message_server_service',                                     
                                      self._service_request_handler)
 
         self.topic_publisher = MessageServerPublisher(self._node, owner_id)
@@ -94,7 +93,7 @@ class MessageServer:
 
         self.topic_publisher.publish(self._sockets_status)
 
-        response.response = response_value
+        response.response = response_value.value
 
         return response
 
@@ -167,7 +166,11 @@ class MessageServer:
             self._priority_queue = hp.nsmallest(self._max_queue_size - 1,
                                                 self._priority_queue)
             hp.heapify(self._priority_queue)
+        #try:
         hp.heappush(self._priority_queue, message)
+        #except Exception as e:
+        #    self._node.get_logger().fatal(f"{e} - {self._priority_queue} - {message}")
+
         self._buffer_lock.release()
         self._server_semaphore.release()
 
@@ -212,13 +215,13 @@ class MessageServer:
     
         # O payload passou a ser um vetor float32[3] para simulação.
         # Por isso, é necessário fazer um cast para int na primeira posição antes de fazer a operação de bits
-        self.cmd.wheel_left =  -payload[1] if (int(payload[0])&2) else payload[1] 
-        self.cmd.wheel_right = -payload[2] if (int(payload[0])&1) else payload[2]
+        self.cmd.wheel_left =  (-payload[1] if (int(payload[0])&2) else payload[1]) * self._simulator_multiplyer 
+        self.cmd.wheel_right = (-payload[2] if (int(payload[0])&1) else payload[2]) * self._simulator_multiplyer
         
-        payload = self.message.SerializeToString()
+        # self._node.get_logger().fatal(f"{id_} {repr(payload)}")
+        payload = self.message.SerializeToString()        
         self.sock.sendall(payload)
         self._adapter_lock.release()
-        # rospy.logfatal(f"{id_} {payload[1]}")
 
     def _close(self, sock: BluetoothSocket) -> None:
         self._node.get_logger().fatal("REMOVING SOCKET: " + repr(sock))        
