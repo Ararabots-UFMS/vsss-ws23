@@ -3,14 +3,14 @@
         "active": 1,
         "bluetooth_mac_address": "ceci",
         "body_id": "simulation_fixed_Kp",
-        "role": "Goalkeeper",
+        "role": "Defender",
         "tag_number": 0
     },
     "robot_2": {
         "active": 0,
         "bluetooth_mac_address": "noriko",
         "body_id": "simulation_fixed_Kp",
-        "role": "PID Calibration",
+        "role": "Defender",
         "tag_number": 1
     },
     "robot_3": {

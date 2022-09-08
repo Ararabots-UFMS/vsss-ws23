@@ -5,7 +5,7 @@ from math import pi
 from math import cos, sin, atan2, exp, sqrt
 from utils.linalg import *
 
-from robot.strategy.arena_utils import ArenaSections, univector_pos_section, Axis, Offsets
+from strategy.arena_utils import ArenaSections, univector_pos_section, Axis, Offsets
 
 LEFT = 0
 RIGHT = 1

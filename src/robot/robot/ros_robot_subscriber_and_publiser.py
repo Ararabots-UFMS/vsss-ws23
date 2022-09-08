@@ -5,8 +5,8 @@ from struct import unpack
 from utils.linalg import Vec2D
 from utils.ros_utils import MsgOrigin
 from sys_interfaces.msg import ThingsPosition, GameTopic, DebugTopic
-from robot.strategy.strategy_utils import GameStates
-from robot.strategy.behaviour import Goal
+from strategy.strategy_utils import GameStates
+from strategy.behaviour import Goal
 
 
 class RosRobotSubscriberAndPublisher:

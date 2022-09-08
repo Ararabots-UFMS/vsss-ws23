@@ -10,11 +10,11 @@ from robot.ros_robot_subscriber_and_publiser import RosRobotSubscriberAndPublish
 from robot.comunication.sender import Sender, STDMsg, SelfControlMsg
 from robot.control import Control
 from robot.hardware import RobotHardware, SimulationHardware
-from robot.strategy.attacker import Attacker
-from robot.strategy.behaviour import BlackBoard, TaskStatus, OpCodes
-from robot.strategy.defender import Defender
-from robot.strategy.goalkeeper import GoalKeeper
-from robot.strategy.pid_calibration import CalibrationTree
+from strategy.attacker import Attacker
+from strategy.behaviour import BlackBoard, TaskStatus, OpCodes
+from strategy.defender import Defender
+from strategy.goalkeeper import GoalKeeper
+from strategy.pid_calibration import CalibrationTree
 from utils.json_handler import JsonHandler
 from utils.linalg import *
 from utils.watcher import watcher

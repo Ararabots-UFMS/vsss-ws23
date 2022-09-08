@@ -24,16 +24,16 @@ param_dict_color = {
 }
 
 
-def evaluete_params(context, *args, **kwargs):
+def evaluate_params(context, *args, **kwargs):
 
     user_namespace = platform.node().replace('-','_')
-    interface = LaunchConfiguration('interface')
+    interface = LaunchConfiguration('interface').perform(context)
     side = LaunchConfiguration('side').perform(context)
     color = LaunchConfiguration('color').perform(context)
     n_robots = LaunchConfiguration('n_robots').perform(context)
 
     try:
-        interface = bool(interface)
+        interface = interface == 'True' 
     except ValueError as exception:
         print(exception)
         interface = True
@@ -87,6 +87,19 @@ def evaluete_params(context, *args, **kwargs):
             )
         )
     else:
+        launch_nodes.append(
+            RegisterEventHandler(
+                OnProcessExit(
+                    target_action=launch_nodes[0],
+                    on_exit=[
+                        LogInfo(msg=(user_namespace,
+                                ' closed the main window')),
+                        EmitEvent(event=Shutdown(
+                            reason='Window closed'))
+                    ]
+                )
+            )
+        )
         for robot_index in range(int(n_robots)):
             robot_index = str(robot_index)
             launch_nodes.append(
@@ -104,7 +117,7 @@ def evaluete_params(context, *args, **kwargs):
 def generate_launch_description():
     interface_launch_arg = DeclareLaunchArgument(
         'interface',
-        default_value='True'
+        default_value='False'
     )
 
     side_launch_arg = DeclareLaunchArgument(
@@ -121,4 +134,4 @@ def generate_launch_description():
         default_value='3'
     )
 
-    return LaunchDescription([interface_launch_arg, side_launch_arg, color_launch_arg, n_robots_launch_arg, OpaqueFunction(function=evaluete_params)])
+    return LaunchDescription([interface_launch_arg, side_launch_arg, color_launch_arg, n_robots_launch_arg, OpaqueFunction(function=evaluate_params)])

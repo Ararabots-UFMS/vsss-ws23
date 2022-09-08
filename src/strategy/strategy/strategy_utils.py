@@ -5,7 +5,7 @@ from utils.linalg import Vec2D
 import numpy as np
 
 from robot.movement.definitions import OpCodes
-from robot.strategy.arena_utils import section, LEFT, BORDER_NORMALS, on_attack_side, ArenaSections
+from strategy.arena_utils import section, LEFT, BORDER_NORMALS, on_attack_side, ArenaSections
 from utils import math_utils
 
 

@@ -1,13 +1,13 @@
-from robot.strategy.behaviour import Selector, Sequence, BlackBoard, TaskStatus
-from robot.strategy.actions.movement_behaviours import GoToPosition, StopAction, SpinTask
-from robot.strategy.actions.state_behaviours import InState
-from robot.strategy.strategy_utils import GameStates
+from strategy.behaviour import Selector, Sequence, BlackBoard, TaskStatus
+from strategy.actions.movement_behaviours import GoToPosition, StopAction, SpinTask
+from strategy.actions.state_behaviours import InState
+from strategy.strategy_utils import GameStates
 from itertools import cycle
 from robot.movement.definitions import OpCodes
-from robot.strategy.actions.decorators import Timer, IgnoreSmoothing
+from strategy.actions.decorators import Timer, IgnoreSmoothing
 import numpy as np
 
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
 
 class CalibrationTree(Selector):

@@ -1,15 +1,15 @@
 from math import sin
 from typing import Callable, List
 
-from robot.strategy import arena_utils
-from robot.strategy.arena_utils import on_attack_side, section, LEFT, HALF_ARENA_WIDTH, ArenaSections, is_on_y_upper_half, ROBOT_SIZE
-from robot.strategy.behaviour import *
-from robot.strategy.behaviour import ACTION, NO_ACTION, TreeNode
-from robot.strategy.behaviour import BlackBoard, TaskStatus
-from robot.strategy.strategy_utils import *
+from strategy import arena_utils
+from strategy.arena_utils import on_attack_side, section, LEFT, HALF_ARENA_WIDTH, ArenaSections, is_on_y_upper_half, ROBOT_SIZE
+from strategy.behaviour import *
+from strategy.behaviour import ACTION, NO_ACTION, TreeNode
+from strategy.behaviour import BlackBoard, TaskStatus
+from strategy.strategy_utils import *
 from utils.math_utils import angle_between
 
-from robot.strategy.acceptance_radius import AcceptanceRadiusEnum
+from strategy.acceptance_radius import AcceptanceRadiusEnum
 
 
 class IsBehindBall(TreeNode):

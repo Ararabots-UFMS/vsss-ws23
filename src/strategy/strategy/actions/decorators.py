@@ -4,7 +4,7 @@ from typing import Tuple
 import numpy as np
 import math as mth
 
-from robot.strategy.behaviour import TaskStatus, BlackBoard, ACTION, TreeNode
+from strategy.behaviour import TaskStatus, BlackBoard, ACTION, TreeNode
 from robot.movement.definitions import OpCodes
 from utils.math_utils import DEG2RAD, BACKWARDS, FORWARD
 from robot.movement.definitions import OpCodes

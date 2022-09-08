@@ -43,11 +43,18 @@ def main(_args=None):
     
     node_obj.get_logger().fatal("ROBOT_" + str(node_obj.id) + " TAG: " + str(sys.argv[2]) + " Online")
 
-
-    rclpy.spin(node_obj)
-
-    node_obj.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node_obj)
+    except KeyboardInterrupt:
+        print('server stopped cleanly')
+    except BaseException:
+        print('exception in server')
+        raise
+    finally:
+        # Destroy the node explicitly
+        # (optional - Done automatically when node is garbage collected)
+        node_obj.destroy_node()
+        rclpy.try_shutdown()
     
     # debug_profiler.dump_stats(os.environ["ROS_ARARA_ROOT"] + "debug_logs.bin") # TODO: pensar em uma forma boa de habilitar isso
 
