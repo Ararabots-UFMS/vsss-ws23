@@ -1,10 +1,11 @@
 from typing import List, Union, NewType
-import bluetooth
-from bluetooth import BluetoothSocket, BluetoothError
+# import bluetooth
+# from bluetooth import BluetoothSocket, BluetoothError
 from enum import Enum
 from time import time, sleep
 import rclpy
 import asyncio
+from collections import deque
 from rclpy.node import Node
 from collections import namedtuple
 import heapq as hp
@@ -59,12 +60,12 @@ class MessageServer:
         from ble_message_server.message_server_subscriber import MessageServerSubscriber
         self.topic_subscriber = MessageServerSubscriber(self, owner_id)
 
-        # self._last_check = time()
+        self._last_check = time()
         self._node.create_timer(1, self._publish_status)
         self._loop_object = None
         self._devices = [None for _ in range(5)]
         self._tasks = [None for _ in range(5)]
-        self._devices_queue = [asyncio.Queue(10) for _ in range(5)]
+        self._devices_queue = [deque(maxlen=10) for _ in range(5)]
 
     def _publish_status(self):
         self.topic_publisher.publish(self._sockets_status)
@@ -176,9 +177,9 @@ class MessageServer:
         # if message is not None:
         #     self.send_message(message.socket_id, message.payload)
 
-        # if time() - self._last_check > 1.0:
-        #     self.topic_publisher.publish(self._sockets_status)
-        #     self._last_check = time()
+        if time() - self._last_check > 1.0:
+            self.topic_publisher.publish(self._sockets_status)
+            self._last_check = time()
 
     def _getItemFromBuffer(self) -> Message:
         m = None
@@ -198,9 +199,10 @@ class MessageServer:
         # self._buffer_lock.release()
         # self._server_semaphore.release()
         try:
-            self._devices_queue[message.socket_id].put_nowait(message.payload)
+            self._devices_queue[message.socket_id].append(bytes(message.payload.astype(np.uint8)))
         except asyncio.QueueFull as exception:
-            # self._node.get_logger().fatal(repr(exception))
+            self._node.get_logger().fatal(repr(exception))
+            self._devices_queue[message.socket_id].clear()
             pass
 
 
@@ -219,28 +221,28 @@ class MessageServer:
         for _, socket in self._sockets.values():
             self._close(socket)
 
-    def _connect(self, sock: BluetoothSocket, mac: str, port: int) -> None:
-        self._adapter_lock.acquire()
-        try:
-            sock.connect((mac, port))
-        except:
-            self._adapter_lock.release()
-            raise IOError
-        self._adapter_lock.release()
+    # def _connect(self, sock: BluetoothSocket, mac: str, port: int) -> None:
+    #     self._adapter_lock.acquire()
+    #     try:
+    #         sock.connect((mac, port))
+    #     except:
+    #         self._adapter_lock.release()
+    #         raise IOError
+    #     self._adapter_lock.release()
 
-    def _send(self, sock: BluetoothSocket, payload: List) -> None:
-        self._adapter_lock.acquire()
-        try:
-            n = sock.send(bytes(payload))
-        except Exception as e:
-            self._adapter_lock.release()
-            raise e
+    # def _send(self, sock: BluetoothSocket, payload: List) -> None:
+    #     self._adapter_lock.acquire()
+    #     try:
+    #         n = sock.send(bytes(payload))
+    #     except Exception as e:
+    #         self._adapter_lock.release()
+    #         raise e
 
-        self._adapter_lock.release()
+    #     self._adapter_lock.release()
 
-    def _close(self, sock: BluetoothSocket) -> None:
-        self._node.get_logger().fatal("REMOVING SOCKET: " + repr(sock))
-        self._adapter_lock.acquire()
-        sock.close()
-        sleep(self.socket_timeout)
-        self._adapter_lock.release()
+    # def _close(self, sock: BluetoothSocket) -> None:
+    #     self._node.get_logger().fatal("REMOVING SOCKET: " + repr(sock))
+    #     self._adapter_lock.acquire()
+    #     sock.close()
+    #     sleep(self.socket_timeout)
+    #     self._adapter_lock.release()
