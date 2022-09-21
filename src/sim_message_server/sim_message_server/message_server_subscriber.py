@@ -19,7 +19,7 @@ class MessageServerSubscriber:
                          qos_profile=5)
 
     def _read_topic(self, data: MessageServerTopic) -> None:
-        self._internal_counter = (self._internal_counter + 1) & 7 # contador de 0 a 7(111)        
+        self._internal_counter = (self._internal_counter + 1) & 1023 # contador de 0 a 7(11111111)        
         m = Message(data.priority,self._internal_counter, data.socket_id, data.payload)
         self._my_server.putItemInBuffer(m)
 

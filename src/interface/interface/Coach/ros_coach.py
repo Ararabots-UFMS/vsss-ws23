@@ -1,4 +1,5 @@
 from typing import Dict
+import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
@@ -59,11 +60,13 @@ class RosCoach:
             )
             
     def stop_node(self, robot_name: str):
-        self._node.get_logger().fatal("CAlled destructor")
+        self._node.get_logger().fatal("Called destructor")
         robot_node = self.player_nodes[robot_name]
-        self._executor.remove_node(robot_node)
-        robot_node.destroy_node()
-        
+        try:
+            self._executor.remove_node(robot_node)
+            robot_node.destroy_node()
+        except Exception as exception:
+            self._node.get_logger().fatal(repr(exception))
 
     def change_arguments_of_node(self, robot_name: str, variables: Dict):
         """
@@ -113,7 +116,10 @@ class RosCoach:
                 self.stop_node(robot_name)            
             elif node_created:
                 choice = -2 
-                self.player_nodes[robot_name].destroy_node()
+                try:
+                    self.player_nodes[robot_name].destroy_node()
+                except Exception as exception:
+                    self._node.get_logger().fatal(repr(exception))
             else:
                 choice = -3
             self.player_nodes[robot_name] = None

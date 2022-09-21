@@ -92,6 +92,8 @@ class MessageServer:
             response_value = self._change_team_color(request.socket_id)
 
         self.topic_publisher.publish(self._sockets_status)
+        
+        sleep(2)
 
         response.response = response_value.value
 

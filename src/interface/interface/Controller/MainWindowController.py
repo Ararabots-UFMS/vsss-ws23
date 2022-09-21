@@ -12,6 +12,7 @@ from interface.ros_game_topic_publisher import GameTopicPublisher
 from interface.main_window_controller_subscriber import MainWindowControllerSubscriber
 from interface.Coach.Coach import Coach
 from rclpy.node import Node
+from threading import Thread
 
 class MainWindowController:
     def __init__(self,node: Node, model: dict,
@@ -238,14 +239,20 @@ class MainWindowController:
         Checkbox callback, node active or not?
         :param ptr: Widget pointer
         :return: nothing
-        """
-        isMacAddress, mac = self.get_mac_address(ptr.id)
+        """        
         ptr.deactivate()
+        thread = Thread(target=self.wait_message_server_response, args=(ptr,))
+        thread.daemon = True
+        thread.start()
+
+
+    def wait_message_server_response(self, ptr):
+
+        isMacAddress, mac = self.get_mac_address(ptr.id)
+
         if isMacAddress:
-            if ptr.value() == True:  # add
-                r = self.pub.add_or_remove_socket_on_messageserver(ServerOpCode.ADD.value, ptr.id, mac)
-            else:  # remove
-                r = self.pub.add_or_remove_socket_on_messageserver(ServerOpCode.REMOVE.value, ptr.id, mac)
+            op_code = ServerOpCode.ADD if ptr.value() else ServerOpCode.REMOVE
+            r = self.pub.add_or_remove_socket_on_messageserver(op_code.value, ptr.id, mac)
 
         if not isMacAddress or r != ServerOpCode.ERROR.value:
             self.coach.set_robot_active(ptr.id, ptr.value())
