@@ -1,6 +1,6 @@
 {
     "robot_1": {
-        "active": 0,
+        "active": 1,
         "bluetooth_mac_address": "ROBOT_TEST",
         "body_id": "simulation_fixed_Kp",
         "role": "Goalkeeper",
