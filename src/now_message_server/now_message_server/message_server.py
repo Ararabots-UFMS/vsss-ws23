@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 from typing import List, Union, NewType
 # import bluetooth
 # from bluetooth import BluetoothSocket, BluetoothError
@@ -7,7 +8,7 @@ from collections import deque
 from rclpy.node import Node
 from collections import namedtuple
 import heapq as hp
-
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from now_message_server.message_server_publisher import MessageServerPublisher
 from now_message_server.opcodes import ServerOpCode
 from sys_interfaces.msg import MessageServerTopic
@@ -46,16 +47,25 @@ class MessageServer:
                                     'message_server_service',                                     
                                      self._service_request_handler)
 
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=5
+        )
+
         self._node.create_subscription(
                          MessageServerTopic,
                          'message_server_topic',
-                         self._read_topic)
+                         self._read_topic,
+                         qos_profile=qos_profile)
+        
+        self.topic_publisher.publish(self._sockets_status)
 
 
     def _read_topic(self, data: MessageServerTopic) -> None:
-        self._socket_message[data.socket_id][0] = data.payload[0]
-        self._socket_message[data.socket_id][1] = data.payload[1]
-        self._socket_message[data.socket_id][2] = data.payload[2]
+        self._socket_message[data.socket_id][2] = data.payload[0]
+        self._socket_message[data.socket_id][3] = data.payload[1]
+        self._socket_message[data.socket_id][4] = data.payload[2]
         self._node.get_logger().warning(f"Writting at Serial:{self._socket_message[data.socket_id]}")
 
 
@@ -80,7 +90,7 @@ class MessageServer:
 
 
     def _mac_been_used(self, mac_address: bytes) -> bool:
-        return mac_address in self._sockets
+        return ":".join("%02x" % b for b in mac_address) in self._sockets
 
     def _update_socket_status(self, sock_id: int, status: Enum) -> None:
 
@@ -89,12 +99,19 @@ class MessageServer:
         else:
             self._sockets_status[sock_id] = 0
 
+    def _insert_mac_into_message(self, socket_id: int, mac_address: bytes) -> None:
+        first_byte, second_byte = mac_address[-2:]
+
+        self._socket_message[socket_id][0] = first_byte
+        self._socket_message[socket_id][1] = second_byte
+
     def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
 
         if self._num_active_sockets < self._capacity and not self._mac_been_used(mac_address):
             self._num_active_sockets += 1
-            self._sockets.append(mac_address)
+            self._sockets.append(":".join("%02x" % b for b in mac_address))
+            self._insert_mac_into_message(socket_id, mac_address)
             self._update_socket_status(socket_id, ServerOpCode.ACTIVE)
             response = ServerOpCode.OK
 
@@ -104,7 +121,13 @@ class MessageServer:
         response = ServerOpCode.OK
         if self._num_active_sockets:
             self._num_active_sockets -= 1
-        self._sockets.remove(mac_address)
+        try:
+            print(self._sockets)
+            self._sockets.remove(":".join("%02x" % b for b in mac_address))
+            print(self._sockets)
+        except ValueError as exception:
+            pass
+
         self._socket_message[socket_id] = [0,0,0,0,0] 
         self._update_socket_status(socket_id, ServerOpCode.INACTIVE)        
 
