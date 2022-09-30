@@ -252,7 +252,7 @@ class MainWindowController:
 
         if isMacAddress:
             op_code = ServerOpCode.ADD if ptr.value() else ServerOpCode.REMOVE
-            r = self.pub.add_or_remove_socket_on_messageserver(op_code.value, ptr.id, mac)
+            r = self.pub.add_or_remove_socket_on_messageserver(op_code.value, ptr.id + self.coach.ros_functions.socket_offset*5, mac)
 
         if not isMacAddress or r != ServerOpCode.ERROR.value:
             self.coach.set_robot_active(ptr.id, ptr.value())

@@ -63,6 +63,7 @@ class MessageServer:
 
 
     def _read_topic(self, data: MessageServerTopic) -> None:
+        self._node.get_logger().warning(f"Writting at Serial:{data.socket_id}")
         self._socket_message[data.socket_id][2] = data.payload[0]
         self._socket_message[data.socket_id][3] = data.payload[1]
         self._socket_message[data.socket_id][4] = data.payload[2]
@@ -105,10 +106,20 @@ class MessageServer:
         self._socket_message[socket_id][0] = first_byte
         self._socket_message[socket_id][1] = second_byte
 
+    def _expand_arrays(self):
+        self._node.get_logger().warning("trying to expand!")
+        self._capacity *=2
+        self._sockets_status = np.resize(self._sockets_status, self._capacity)
+        self._socket_message += [[0,0,0,0,0] for _ in range(self._capacity)]
+
     def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
 
         if self._num_active_sockets < self._capacity and not self._mac_been_used(mac_address):
+            self._node.get_logger().warning(f"{socket_id} - {self._capacity}")
+            if socket_id >= self._capacity:
+                self._expand_arrays()
+            
             self._num_active_sockets += 1
             self._sockets.append(":".join("%02x" % b for b in mac_address))
             self._insert_mac_into_message(socket_id, mac_address)

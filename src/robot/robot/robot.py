@@ -30,6 +30,7 @@ class Robot(Node):
                  robot_role: int,
                  owner_name: str,
                  socket_id: int = -1,
+                 socket_offset: int = 0,
                  should_debug: int = 0):
 
         robot_name = "ROBOT_" + str(robot_id)
@@ -41,7 +42,7 @@ class Robot(Node):
         
         self.robot_body = robot_body
         self.tag = tag
-        self._socket_id = socket_id
+        self._socket_id = socket_id + socket_offset*5
         self._should_debug = should_debug
         
         self._owner_name = owner_name        

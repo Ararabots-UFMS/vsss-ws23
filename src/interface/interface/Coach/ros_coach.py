@@ -1,9 +1,11 @@
+import imp
 from typing import Dict
 import rclpy
 from rclpy.node import Node
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from robot.robot import Robot
+from utils.ros_utils import RosUtils
 
 class RosCoach:
     """
@@ -16,6 +18,7 @@ class RosCoach:
         """
         
         self._node = node
+        self.socket_offset = RosUtils.number_of_node_instances('virtual_field', self._node)
         self._executor = MultiThreadedExecutor()
         self._executor.add_node(self._node)
         
@@ -56,6 +59,7 @@ class RosCoach:
             robot_role=variables["role"], 
             owner_name=self._node.get_namespace(), 
             socket_id=variables["socket_id"], 
+            socket_offset=self.socket_offset,
             should_debug=variables["should_debug"]
             )
             
