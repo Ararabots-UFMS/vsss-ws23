@@ -31,6 +31,9 @@ class MessageServer:
 
         self._capacity = max_sockets_capacity
         self._max_queue_size = max_queue_size
+        # self._node.get_logger().warning(f"{socket_id} - {self._capacity}")
+
+            
         self.socket_timeout = socket_timeout
 
         self.TAG = "MESSAGE SERVER"
@@ -38,10 +41,10 @@ class MessageServer:
         self._num_active_sockets = 0
         self._sockets = []
         # The payload for esp now
-        self._socket_message = [[0,0,0,0,0] for _ in range(self._capacity)]
+        self._socket_message_matrix = [[[0,0,0,0,0] for _ in range(self._capacity)] for _ in range(self._capacity)]
+        self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)] # [0] * self._capacity
 
-        self._sockets_status = np.zeros(self._capacity, dtype= np.uint8) # [0] * self._capacity
-        self.topic_publisher = MessageServerPublisher(self._node, owner_id)
+        self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
 
         self.service = self._node.create_service(MessageServerService,
                                     'message_server_service',                                     
@@ -59,15 +62,16 @@ class MessageServer:
                          self._read_topic,
                          qos_profile=qos_profile)
         
-        self.topic_publisher.publish(self._sockets_status)
+        self.topic_publisher.publish_all()
 
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         self._node.get_logger().warning(f"Writting at Serial:{data.socket_id}")
-        self._socket_message[data.socket_id][2] = data.payload[0]
-        self._socket_message[data.socket_id][3] = data.payload[1]
-        self._socket_message[data.socket_id][4] = data.payload[2]
-        self._node.get_logger().warning(f"Writting at Serial:{self._socket_message[data.socket_id]}")
+        socket_message = self._socket_message_matrix[data.socket_offset] 
+        socket_message[data.socket_id][2] = data.payload[0]
+        socket_message[data.socket_id][3] = data.payload[1]
+        socket_message[data.socket_id][4] = data.payload[2]
+        self._node.get_logger().warning(f"Writting at Serial:{socket_message[data.socket_id]}")
 
 
     def _service_request_handler(self,
@@ -75,13 +79,13 @@ class MessageServer:
         response_value = ServerOpCode.ERROR
 
         if request.opcode == ServerOpCode.ADD.value:
-            response_value = self._add_socket(request.socket_id, request.robot_mac_addr)
+            response_value = self._add_socket(request.socket_id, request.socket_offset, request.robot_mac_addr)
 
         elif request.opcode == ServerOpCode.REMOVE.value:
-            response_value = self._remove_socket(request.socket_id, request.robot_mac_addr)
+            response_value = self._remove_socket(request.socket_id, request.socket_offset, request.robot_mac_addr)
 
         
-        self.topic_publisher.publish(self._sockets_status)
+        self.topic_publisher.publish(request.socket_offset)
         
         sleep(2)
 
@@ -93,53 +97,41 @@ class MessageServer:
     def _mac_been_used(self, mac_address: bytes) -> bool:
         return ":".join("%02x" % b for b in mac_address) in self._sockets
 
-    def _update_socket_status(self, sock_id: int, status: Enum) -> None:
+    def _update_socket_status(self, sock_id: int, sock_offset: int, status: Enum) -> None:
 
         if status == ServerOpCode.ACTIVE:
-            self._sockets_status[sock_id] = 1
+            self._sockets_status_matrix[sock_offset][sock_id] = 1
         else:
-            self._sockets_status[sock_id] = 0
+            self._sockets_status_matrix[sock_offset][sock_id] = 0
 
-    def _insert_mac_into_message(self, socket_id: int, mac_address: bytes) -> None:
+    def _insert_mac_into_message(self, socket_id: int, sock_offset: int, mac_address: bytes) -> None:
         first_byte, second_byte = mac_address[-2:]
 
-        self._socket_message[socket_id][0] = first_byte
-        self._socket_message[socket_id][1] = second_byte
+        self._socket_message_matrix[sock_offset][socket_id][0] = first_byte
+        self._socket_message_matrix[sock_offset][socket_id][1] = second_byte
 
-    def _expand_arrays(self):
-        self._node.get_logger().warning("trying to expand!")
-        self._capacity *=2
-        self._sockets_status = np.resize(self._sockets_status, self._capacity)
-        self._socket_message += [[0,0,0,0,0] for _ in range(self._capacity)]
-
-    def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:
+    def _add_socket(self, socket_id: int, sock_offset: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
 
         if self._num_active_sockets < self._capacity and not self._mac_been_used(mac_address):
-            self._node.get_logger().warning(f"{socket_id} - {self._capacity}")
-            if socket_id >= self._capacity:
-                self._expand_arrays()
-            
             self._num_active_sockets += 1
             self._sockets.append(":".join("%02x" % b for b in mac_address))
-            self._insert_mac_into_message(socket_id, mac_address)
-            self._update_socket_status(socket_id, ServerOpCode.ACTIVE)
+            self._insert_mac_into_message(socket_id, sock_offset, mac_address)
+            self._update_socket_status(socket_id, sock_offset, ServerOpCode.ACTIVE)
             response = ServerOpCode.OK
 
         return response
 
-    def _remove_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:
+    def _remove_socket(self, socket_id: int, sock_offset: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.OK
         if self._num_active_sockets:
             self._num_active_sockets -= 1
         try:
-            print(self._sockets)
             self._sockets.remove(":".join("%02x" % b for b in mac_address))
-            print(self._sockets)
         except ValueError as exception:
             pass
 
-        self._socket_message[socket_id] = [0,0,0,0,0] 
-        self._update_socket_status(socket_id, ServerOpCode.INACTIVE)        
+        self._socket_message_matrix[sock_offset][socket_id] = [0,0,0,0,0] 
+        self._update_socket_status(socket_id, sock_offset, ServerOpCode.INACTIVE)        
 
         return response

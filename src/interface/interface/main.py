@@ -26,7 +26,9 @@ def main(args=None):
     try:
         owner_id = argv[1]
     except ValueError:
-        owner_id = 'Player_' + str(randint(0, 99999))
+        owner_id = 'Player_One'
+
+    owner_id += '_' + str(randint(0, 99999))
 
     # Necessario no ROS2?
     # ProcessKiller(["robot"])

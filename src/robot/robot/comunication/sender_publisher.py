@@ -2,21 +2,24 @@ from typing import List
 import numpy as np
 from rclpy.node import Node
 from sys_interfaces.msg import MessageServerTopic
-
+import platform
 
 class SenderPublisher:
-    def __init__(self, node: Node, owner_id: str = None):
+    def __init__(self, node: Node, socket_id: int, socket_offset: int):
         self.TAG = "ROBOT SENDER PUBLISHER"
         self._node = node
-        
+        user_namespace = platform.node().replace('-','_')
         self.publisher = self._node.create_publisher(
                             MessageServerTopic,
-                            'message_server_topic',
+                            '/'+user_namespace+'/message_server_topic',
                             qos_profile=1)
         self.msg = MessageServerTopic()
+        self.msg.socket_id = socket_id
+        self.msg.socket_offset = socket_offset
 
     def publish(self, priority: int, socket_id: int, msg: List):
-        self.msg.socket_id = socket_id
+        # self.msg.socket_id = socket_id
+        
         self.msg.priority = priority
         try:
             #TODO: melhorar conversao de lista para np array

@@ -5,20 +5,17 @@ from threading import Thread
 from now_message_server.message_server import MessageServer
 from sys import argv
 from random import randint
-
+import platform
 
 class MessageServerNode(Node):
 
     def __init__(self):
         
-        try:
-            owner_id = argv[1]
-        except Exception as exception:
-            owner_id = 'Player_' + str(randint(0, 99999))
+        user_namespace = platform.node().replace('-','_')
 
-        super().__init__('message_server', namespace=owner_id)
+        super().__init__('message_server', namespace=user_namespace)
 
-        self.server = MessageServer(node=self, owner_id=owner_id)
+        self.server = MessageServer(node=self, owner_id=user_namespace)
 
 
 def main(args=None):
