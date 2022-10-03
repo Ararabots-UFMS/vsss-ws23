@@ -1,20 +1,16 @@
 from logging import debug
-from typing import List, Union, NewType
-import bluetooth
-from bluetooth import BluetoothSocket, BluetoothError
+from typing import List, NewType
 from enum import Enum
-from time import time, sleep
-import rclpy
+from time import sleep
 from rclpy.node import Node
 from collections import namedtuple
-import heapq as hp
-from threading import Lock, Semaphore
-#from ctypes import c_ubyte
 from utils.socket_interfaces import SenderSocket
 import numpy as np
 from sys_interfaces.srv import MessageServerService
 from message_server.opcodes import ServerOpCode
+from sys_interfaces.msg import MessageServerTopic, GameTopic
 from sim_message_server.message_server_publisher import MessageServerPublisher
+
 Message = namedtuple("Message", ["priority", "counter", "socket_id", "payload"])
 
 Seconds = NewType('seconds', float)
@@ -31,7 +27,6 @@ class MessageServer:
 
     def __init__(self, node: Node,
                  owner_id: str = None, 
-                 simulator_mode: bool = False,
                  team_color: int = 0,
                  max_sockets_capacity: int = 5,
                  max_queue_size: int = 5,
@@ -39,59 +34,70 @@ class MessageServer:
                  ):
 
         self._node = node
-
-        self._simulator_mode = simulator_mode
         self._simulator_multiplyer = 80/255
         self._capacity = max_sockets_capacity
-        self._priority_queue = []
-        self._max_queue_size = max_queue_size
         self.socket_timeout = socket_timeout
-
-        self._adapter_lock = Lock()
-        self._buffer_lock = Lock()
-        self._socket_dic_lock = Lock()
-        self._server_semaphore = Semaphore(0)
 
         self.TAG = "MESSAGE SERVER"
 
-        self._sockets = {}
-        self._num_active_sockets = 0
-        self.default_port = 0x1001
-        self._sockets_status = np.zeros(self._capacity, dtype= np.uint8) # [0] * self._capacity
+        self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)]
+
+        self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
+
         self.service = self._node.create_service(MessageServerService,
                                     'message_server_service',                                     
                                      self._service_request_handler)
 
-        self.topic_publisher = MessageServerPublisher(self._node, owner_id)
-
-        from sim_message_server.message_server_subscriber import MessageServerSubscriber
-        self.topic_subscriber = MessageServerSubscriber(self, owner_id)
-
-        self._last_check = time()
+        self.topic_publisher.publish_all()
 
         # ============================================
 
         self.sock = SenderSocket.create(self.UDP_IP, self.UDP_PORT)
-
-        # Pode ser um singleton mesmo?
-        self.message = packet_pb2.Packet()        
-        self.cmd = self.message.cmd.robot_commands.add()
-        self.cmd.yellowteam = team_color     
         
+        self._socket_message_array = []
+        self._cmd_array = []
+
+        for _ in range(self._capacity):
+            # Pode ser um singleton mesmo?            
+            message = packet_pb2.Packet()        
+            cmd = message.cmd.robot_commands.add()
+            cmd.yellowteam = team_color
+            self._socket_message_array.append(message)
+            self._cmd_array.append(cmd)
+
+
+    
+        self._node.create_subscription(
+                         MessageServerTopic,
+                         'message_server_topic',
+                         self._read_topic,
+                         qos_profile=5)
+
+        # self._node.create_subscription(
+        #                  GameTopic,
+        #                  'game_topic',
+        #                  self._read_game_topic,
+        #                  qos_profile=5)
+
+    def _read_topic(self, data: MessageServerTopic) -> None:
+        self._sim_send(data.socket_id, data.socket_offset, data.payload)
+
+    def _read_game_topic(self, data: GameTopic) -> None:
+        self._my_server.cmd.yellowteam = data.team_color
 
     def _service_request_handler(self,
-                                 request, response) -> int:
+        request: MessageServerService.Request, 
+        response: MessageServerService.Response) -> int:
+
         response_value = ServerOpCode.ERROR
+        self._node.get_logger().warning(request.game_topic_name.decode("utf-8"))
         if request.opcode == ServerOpCode.ADD.value:
-            response_value = self._add_socket(request.socket_id, bytes(request.robot_mac_addr))
+            response_value = self._add_socket(request.socket_id, request.socket_offset)
 
         elif request.opcode == ServerOpCode.REMOVE.value:
-            response_value = self._remove_socket(request.socket_id)
+            response_value = self._remove_socket(request.socket_id, request.socket_offset)
 
-        elif request.opcode == ServerOpCode.CHANGE_COLORS.value:
-            response_value = self._change_team_color(request.socket_id)
-
-        self.topic_publisher.publish(self._sockets_status)
+        self.topic_publisher.publish(request.socket_offset)
         
         sleep(2)
 
@@ -99,117 +105,26 @@ class MessageServer:
 
         return response
 
-    def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:       
-        # if self._simulator_mode:
-        self._sockets[socket_id] = ("fake_mac", None)
-        self._num_active_sockets += 1
-        self._update_socket_status(socket_id, ServerOpCode.ACTIVE)
-        # response = ServerOpCode.OK
-        return ServerOpCode.OK
-
-    def _mac_been_used(self, mac_address: bytes) -> bool:
-        for mac, _ in self._sockets.values():
-            if mac == mac_address:
-                return True
-        return False
-
-    def _update_socket_status(self, sock_id: int, status: Enum) -> None:
+    def _update_socket_status(self, sock_id: int, socket_offset:int, status: Enum) -> None:
 
         if status == ServerOpCode.ACTIVE:
-            self._sockets_status[sock_id] = 1
+            self._sockets_status_matrix[socket_offset][sock_id] = 1
         else:
-            self._sockets_status[sock_id] = 0
+            self._sockets_status_matrix[socket_offset][sock_id] = 0
 
-    def _remove_socket(self, socket_id: int) -> ServerOpCode:
-        #if self._simulator_mode:
-        self._num_active_sockets -= 1
-        self._update_socket_status(socket_id, ServerOpCode.INACTIVE)
+    def _add_socket(self, socket_id: int, socket_offset:int) -> ServerOpCode:       
+        self._update_socket_status(socket_id, socket_offset, ServerOpCode.ACTIVE)
         return ServerOpCode.OK
 
-
-    def _change_team_color(self, socket_id: int) -> ServerOpCode:
-        response = ServerOpCode.OK
-        self.cmd.yellowteam = socket_id        
-        return response
-
-    def _lock_sockets(self):
-        # self._socket_dic_lock.acquire()
-        pass
-
-    def _release_sockets(self):
-        # self._socket_dic_lock.release()
-        pass
-
-    def loop(self) -> None:
-        while rclpy.ok():
-            self._server_semaphore.acquire()
-            message = self._getItemFromBuffer()
-
-            if message is not None:
-                self.send_message(message.socket_id, message.payload)
-
-            if time() - self._last_check > 1.0:
-                self.topic_publisher.publish(self._sockets_status)
-                self._last_check = time()
-
-        self.on_shutdown()
-
-    def _getItemFromBuffer(self) -> Message:
-        m = None
-        self._buffer_lock.acquire()
-        if len(self._priority_queue) > 0:
-            m = hp.heappop(self._priority_queue)
-        self._buffer_lock.release()
-        return m
-
-    def putItemInBuffer(self, message: Message) -> None:
-        self._buffer_lock.acquire()
-        if len(self._priority_queue) == self._max_queue_size:
-            self._priority_queue = hp.nsmallest(self._max_queue_size - 1,
-                                                self._priority_queue)
-            hp.heapify(self._priority_queue)
-        #try:
-        hp.heappush(self._priority_queue, message)
-        #except Exception as e:
-        #    self._node.get_logger().fatal(f"{e} - {self._priority_queue} - {message}")
-
-        self._buffer_lock.release()
-        self._server_semaphore.release()
-
-    def send_message(self, id_: int, payload: List) -> None:
-        # released = False
-
-        if self._simulator_mode or (id_ in self._sockets.keys()):
-            self._sim_send(id_, payload)
+    def _remove_socket(self, socket_id: int, socket_offset:int) -> ServerOpCode:
+        self._update_socket_status(socket_id, socket_offset, ServerOpCode.INACTIVE)
+        return ServerOpCode.OK
 
     def on_shutdown(self) -> None:
-        for _, socket in self._sockets.values():
-            self._close(socket)
+        self.sock.close()
 
-    def _connect(self, sock: BluetoothSocket, mac: str, port: int) -> None:
-        self._adapter_lock.acquire()
-        try:
-            sock.connect((mac, port))
-        except:
-            self._adapter_lock.release()
-            raise IOError
-        self._adapter_lock.release()
-
-    def _send(self, sock: BluetoothSocket, payload: List) -> None:
-        self._adapter_lock.acquire()
-        try:
-            n = sock.send(bytes(payload))
-        except Exception as e:
-            self._adapter_lock.release()
-            raise e
-
-        self._adapter_lock.release()
-
-    def _sim_send(self, id_: int, payload: List):
-        self._adapter_lock.acquire()
-        self.cmd.id = id_        
-        # rospy.logfatal(f"{payload[0]} {payload[1]} {payload[2]}")
-
+    def _sim_send(self, id_: int, socket_offset: int, payload: List):
+        self._cmd_array[socket_offset].id = id_        
         # self.LEFTFORWARD_RIGHTFORWARD = 0x00  # 0000 0000
         # self.LEFTFORWARD_RIGHTBACKWARD = 0x01  # 0000 0001
         # self.LEFTBACKWARD_RIGHTFORWARD = 0x02  # 0000 0010
@@ -217,17 +132,9 @@ class MessageServer:
     
         # O payload passou a ser um vetor float32[3] para simulação.
         # Por isso, é necessário fazer um cast para int na primeira posição antes de fazer a operação de bits
-        self.cmd.wheel_left =  (-payload[1] if (int(payload[0])&2) else payload[1]) * self._simulator_multiplyer 
-        self.cmd.wheel_right = (-payload[2] if (int(payload[0])&1) else payload[2]) * self._simulator_multiplyer
+        self._cmd_array[socket_offset].wheel_left =  (-payload[1] if (int(payload[0])&2) else payload[1]) * self._simulator_multiplyer 
+        self._cmd_array[socket_offset].wheel_right = (-payload[2] if (int(payload[0])&1) else payload[2]) * self._simulator_multiplyer
         
         # self._node.get_logger().fatal(f"{id_} {repr(payload)}")
-        payload = self.message.SerializeToString()        
+        payload = self._socket_message_array[socket_offset].SerializeToString()        
         self.sock.sendall(payload)
-        self._adapter_lock.release()
-
-    def _close(self, sock: BluetoothSocket) -> None:
-        self._node.get_logger().fatal("REMOVING SOCKET: " + repr(sock))        
-        self._adapter_lock.acquire()
-        sock.close()
-        sleep(self.socket_timeout)
-        self._adapter_lock.release()

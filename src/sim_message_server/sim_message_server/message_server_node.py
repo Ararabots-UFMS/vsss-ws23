@@ -7,29 +7,28 @@ import rclpy
 from rclpy.node import Node
 
 from sim_message_server.message_server import MessageServer
+import platform
 
 class MessageServerNode(Node):
 
     def __init__(self):
         
-        try:
-            owner_id = argv[1]
-        except Exception as exception:
-            owner_id = 'Player_' + str(randint(0, 99999))
+        # try:
+        #     owner_id = argv[1]
+        # except Exception as exception:
+        #     owner_id = 'Player_' + str(randint(0, 99999))
 
-        super().__init__('message_server', namespace=owner_id)
+        user_namespace = platform.node().replace('-','_')
+
+        super().__init__('message_server', namespace=user_namespace)
 
         try:
-            team_color = int(argv[3]) if argv[3] else 0
+            team_color = int(argv[1]) if argv[1] else 0
         except Exception as exception:
             team_color = 0
             self.get_logger().fatal(str(exception))
 
-        server = MessageServer(node=self, owner_id=owner_id, simulator_mode=True, team_color=team_color)
-    
-        server_thread = Thread(target=server.loop, args=())
-        server_thread.daemon = True
-        server_thread.start()
+        MessageServer(node=self, owner_id=user_namespace, team_color=team_color)
 
 
 def main(args=None):
