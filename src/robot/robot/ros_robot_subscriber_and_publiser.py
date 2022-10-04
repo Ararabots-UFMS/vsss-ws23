@@ -46,6 +46,7 @@ class RosRobotSubscriberAndPublisher:
 
         self.debug_msg = DebugTopic()
         self.debug_msg.id = self.robot.id
+        self.read_game_topic(GameTopic())
 
     def read_game_topic(self, data : GameTopic):
         """
