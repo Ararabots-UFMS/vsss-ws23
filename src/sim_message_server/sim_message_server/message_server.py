@@ -40,6 +40,8 @@ class MessageServer:
 
         self.TAG = "MESSAGE SERVER"
 
+        self.game_topic_subs = {}
+
         self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)]
 
         self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
@@ -73,24 +75,30 @@ class MessageServer:
                          self._read_topic,
                          qos_profile=5)
 
-        # self._node.create_subscription(
-        #                  GameTopic,
-        #                  'game_topic',
-        #                  self._read_game_topic,
-        #                  qos_profile=5)
+    def create_game_topic_subscription(self, game_topic_name: str, socket_offset: int) -> None:
+        if game_topic_name in self.game_topic_subs.keys():
+            return
+
+        self.game_topic_subs[game_topic_name] = self._node.create_subscription(
+            GameTopic,
+            game_topic_name+'/game_topic',
+            lambda data: self._read_game_topic(socket_offset, data),
+            qos_profile=5)
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         self._sim_send(data.socket_id, data.socket_offset, data.payload)
 
-    def _read_game_topic(self, data: GameTopic) -> None:
-        self._my_server.cmd.yellowteam = data.team_color
+    def _read_game_topic(self, socket_offset:int, data: GameTopic) -> None:
+        self._cmd_array[socket_offset].yellowteam = data.team_color
 
     def _service_request_handler(self,
-        request: MessageServerService.Request, 
+        request: MessageServerService.Request,
         response: MessageServerService.Response) -> int:
 
         response_value = ServerOpCode.ERROR
-        self._node.get_logger().warning(request.game_topic_name.decode("utf-8"))
+        game_topic_name = ''.join([chr(i) for i in request.game_topic_name]).strip('\0')
+        self.create_game_topic_subscription(game_topic_name, request.socket_offset)
+
         if request.opcode == ServerOpCode.ADD.value:
             response_value = self._add_socket(request.socket_id, request.socket_offset)
 
