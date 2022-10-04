@@ -10,6 +10,8 @@ from sys_interfaces.srv import MessageServerService
 from message_server.opcodes import ServerOpCode
 from sys_interfaces.msg import MessageServerTopic, GameTopic
 from sim_message_server.message_server_publisher import MessageServerPublisher
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+from rclpy.qos import QoSPresetProfiles
 
 Message = namedtuple("Message", ["priority", "counter", "socket_id", "payload"])
 
@@ -66,14 +68,19 @@ class MessageServer:
             cmd.yellowteam = team_color
             self._socket_message_array.append(message)
             self._cmd_array.append(cmd)
-
-
     
+
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
         self._node.create_subscription(
                          MessageServerTopic,
                          'message_server_topic',
                          self._read_topic,
-                         qos_profile=5)
+                         qos_profile=qos_profile)
 
     def create_game_topic_subscription(self, game_topic_name: str, socket_offset: int) -> None:
         if game_topic_name in self.game_topic_subs.keys():
@@ -83,7 +90,7 @@ class MessageServer:
             GameTopic,
             game_topic_name+'/game_topic',
             lambda data: self._read_game_topic(socket_offset, data),
-            qos_profile=5)
+            qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         self._sim_send(data.socket_id, data.socket_offset, data.payload)

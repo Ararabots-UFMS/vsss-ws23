@@ -3,16 +3,23 @@ import numpy as np
 from rclpy.node import Node
 from sys_interfaces.msg import MessageServerTopic
 import platform
-
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 class SenderPublisher:
     def __init__(self, node: Node, socket_id: int, socket_offset: int):
         self.TAG = "ROBOT SENDER PUBLISHER"
         self._node = node
         user_namespace = platform.node().replace('-','_')
+        
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=1
+        )
+
         self.publisher = self._node.create_publisher(
                             MessageServerTopic,
                             '/'+user_namespace+'/message_server_topic',
-                            qos_profile=1)
+                            qos_profile=qos_profile)
         self.msg = MessageServerTopic()
         self.msg.socket_id = socket_id
         self.msg.socket_offset = socket_offset

@@ -7,7 +7,7 @@ from sys_interfaces.srv import VisionCommand, MessageServerService
 from message_server.opcodes import ServerOpCode
 import numpy as np
 import platform
-
+from rclpy.qos import QoSPresetProfiles
 class GameTopicPublisher:
     """
     This class can publish Game related messages on a 'Game topic' Topic
@@ -36,7 +36,7 @@ class GameTopicPublisher:
         for c_index, character in enumerate(list((self._node.get_namespace()+'\0').encode())):
             self.game_topic_name[c_index] = character
 
-        self.pub = node.create_publisher(GameTopic, self.name, qos_profile=1)
+        self.pub = node.create_publisher(GameTopic, self.name, qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
         self.msg = GameTopic()
         self.msg.robot_roles = [0, 0, 0, 0, 0]
         self.msg.robot_tags = [0, 0, 0, 0, 0]

@@ -3,7 +3,7 @@ import numpy as np
 
 from rclpy.node import Node
 from sys_interfaces.msg import ConnectionStatusTopic
-
+from rclpy.qos import QoSPresetProfiles
 
 class MessageServerPublisher:
     def __init__(self, node: Node, sockets_status_matrix = None, capacity: int = 5):
@@ -15,7 +15,7 @@ class MessageServerPublisher:
         self.publisher = self._node.create_publisher(
             ConnectionStatusTopic,
             'connection_status_topic',
-            qos_profile=10)
+            qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
     def publish_all(self):
         for socket_msg in self._msg_matrix:

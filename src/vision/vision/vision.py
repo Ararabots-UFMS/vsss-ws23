@@ -17,7 +17,7 @@ from vision import COLORS
 from sys_interfaces.msg import GameTopic
 from utils.json_handler import JsonHandler
 from vision.ros_vision_publisher import RosVisionPublisher
-
+from rclpy.qos import QoSPresetProfiles
 from vision.seekers.circular_color_tag_seeker import CircularColorTagSeeker
 
 
@@ -58,7 +58,7 @@ class Vision:
             GameTopic,
             'game_topic', 
             self.on_game_state_change,
-            qos_profile=5
+            qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT
         )
 
         self.game_state = None

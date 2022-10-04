@@ -1,3 +1,4 @@
+import imp
 import rclpy
 from enum import Enum
 from rclpy.node import Node
@@ -6,7 +7,7 @@ from sys_interfaces.msg import ThingsPosition # CHANGE
 
 import sim_cam.sim.packet_pb2 as packet_pb2
 from utils.socket_interfaces import ReceiverSocket
-
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 class VisionOperations(Enum):
     """
     This class stores vision operations for service request
@@ -25,7 +26,12 @@ class MinimalPublisher(Node):
 
     def __init__(self):
         super().__init__('vision')
-        self.publisher_ = self.create_publisher(ThingsPosition, 'things_position', 1)  # CHANGE
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+        self.publisher_ = self.create_publisher(ThingsPosition, 'things_position', qos_profile=qos_profile)  # CHANGE
         self.msg = ThingsPosition()
         self.message = packet_pb2.Environment()
         
