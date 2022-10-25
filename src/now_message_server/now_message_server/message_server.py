@@ -30,6 +30,8 @@ class MessageServer:
         self._node = node
 
         self._capacity = max_sockets_capacity
+        self.max_socket_offsets = 2
+        self.single_message_size = 5 # in bytes
         self._max_queue_size = max_queue_size
         # self._node.get_logger().warning(f"{socket_id} - {self._capacity}")
 
@@ -37,13 +39,17 @@ class MessageServer:
         self.socket_timeout = socket_timeout
 
         self.TAG = "MESSAGE SERVER"
+        
+        self._password = "Arara"
+        self._password_len = len(self._password)
 
         self._num_active_sockets = 0
         self._sockets = []
-        # The payload for esp now
-        self._socket_message_matrix = [[[0,0,0,0,0] for _ in range(self._capacity)] for _ in range(self._capacity)]
         self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)] # [0] * self._capacity
-
+        
+        # The payload for esp now
+        self._message = [ord(c) for c in self._password] + [0] * (self.max_socket_offsets * self._capacity * self.single_message_size)
+        self._null_mac = np.zeros(6, dtype= np.uint8)
         self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
 
         self.service = self._node.create_service(MessageServerService,
@@ -66,12 +72,17 @@ class MessageServer:
 
 
     def _read_topic(self, data: MessageServerTopic) -> None:
-        self._node.get_logger().warning(f"Writting at Serial:{data.socket_id}")
-        socket_message = self._socket_message_matrix[data.socket_offset] 
-        socket_message[data.socket_id][2] = data.payload[0]
-        socket_message[data.socket_id][3] = data.payload[1]
-        socket_message[data.socket_id][4] = data.payload[2]
-        self._node.get_logger().warning(f"Writting at Serial:{socket_message[data.socket_id]}")
+        offset = self._password_len + \
+            data.socket_offset*self._capacity*self.single_message_size + \
+            data.socket_id * self.single_message_size
+        
+        self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
+         
+        self._message[offset + 2] = data.payload[0]
+        self._message[offset + 3] = data.payload[1]
+        self._message[offset + 4] = data.payload[2]
+        
+        self._node.get_logger().warning(f"Writting at Serial:{self._message}")
 
 
     def _service_request_handler(self,
@@ -106,9 +117,11 @@ class MessageServer:
 
     def _insert_mac_into_message(self, socket_id: int, sock_offset: int, mac_address: bytes) -> None:
         first_byte, second_byte = mac_address[-2:]
-
-        self._socket_message_matrix[sock_offset][socket_id][0] = first_byte
-        self._socket_message_matrix[sock_offset][socket_id][1] = second_byte
+        
+        offset = self._password_len + sock_offset*self._capacity*self.single_message_size + socket_id * self.single_message_size
+        
+        self._message[offset] = first_byte
+        self._message[offset + 1] = second_byte
 
     def _add_socket(self, socket_id: int, sock_offset: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
@@ -131,7 +144,7 @@ class MessageServer:
         except ValueError as exception:
             pass
 
-        self._socket_message_matrix[sock_offset][socket_id] = [0,0,0,0,0] 
+        self._insert_mac_into_message(socket_id, sock_offset, self._null_mac) 
         self._update_socket_status(socket_id, sock_offset, ServerOpCode.INACTIVE)        
 
         return response

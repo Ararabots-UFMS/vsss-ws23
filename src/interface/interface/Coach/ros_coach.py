@@ -18,7 +18,8 @@ class RosCoach:
         """
         
         self._node = node
-        self.socket_offset = RosUtils.number_of_node_instances('virtual_field', self._node)
+        self.socket_offset = RosUtils.number_of_node_instances('virtual_field', self._node) - 1 
+        self.socket_offset = self.socket_offset if self.socket_offset >= 0 else 0 
         self._executor = MultiThreadedExecutor()
         self._executor.add_node(self._node)
         
