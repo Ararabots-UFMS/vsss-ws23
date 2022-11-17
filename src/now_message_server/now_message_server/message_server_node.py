@@ -34,6 +34,7 @@ def main(args=None):
         # Destroy the node explicitly
         # (optional - Done automatically when node is garbage collected)
         # message_server.server.end_message_server()
+        message_server.server.serial_writer.close()
         message_server.destroy_node()
         rclpy.try_shutdown()
 

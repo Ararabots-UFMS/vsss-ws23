@@ -13,7 +13,7 @@ from now_message_server.message_server_publisher import MessageServerPublisher
 from now_message_server.opcodes import ServerOpCode
 from sys_interfaces.msg import MessageServerTopic
 from sys_interfaces.srv import MessageServerService
-
+import serial
 import numpy as np
 
 Seconds = NewType('seconds', float)
@@ -40,7 +40,7 @@ class MessageServer:
 
         self.TAG = "MESSAGE SERVER"
         
-        self._password = "Arara"
+        self._password = "ARARA"
         self._password_len = len(self._password)
 
         self._num_active_sockets = 0
@@ -70,6 +70,11 @@ class MessageServer:
         
         self.topic_publisher.publish_all()
 
+        self.serial_writer = serial.Serial()
+        self.serial_writer.baudrate = 115200
+        self.serial_writer.port = '/dev/ttyUSB0'
+        self.serial_writer.open()
+
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         offset = self._password_len + \
@@ -83,6 +88,7 @@ class MessageServer:
         self._message[offset + 4] = data.payload[2]
         
         self._node.get_logger().warning(f"Writting at Serial:{self._message}")
+        self.serial_writer.write(bytearray(self._message))
 
 
     def _service_request_handler(self,
