@@ -1,8 +1,9 @@
 {
+    "ROBOT_TEST": "B4:E6:2D:B5:B9:6B",
+    "ROBOT_TEST_2": "b4:e6:2d:b5:b9:69",
     "ceci": "30:AE:A4:92:2A:32",
     "noriko": "84:0D:8E:0C:92:A2",
     "tucao": "84:0D:8E:0D:BA:32",
     "viscoso": "84:0D:8E:0C:92:8E",
-    "walle": "84:0D:8E:0C:93:16",
-    "ROBOT_TEST": "B4:E6:2D:B5:B9:6B"
+    "walle": "84:0D:8E:0C:93:16"
 }

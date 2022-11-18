@@ -39,16 +39,16 @@ class MessageServer:
         self.socket_timeout = socket_timeout
 
         self.TAG = "MESSAGE SERVER"
-        
-        self._password = "ARARA"
-        self._password_len = len(self._password)
 
         self._num_active_sockets = 0
         self._sockets = []
         self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)] # [0] * self._capacity
         
         # The payload for esp now
-        self._message = [ord(c) for c in self._password] + [0] * (self.max_socket_offsets * self._capacity * self.single_message_size)
+        self._message = [0] * (self.max_socket_offsets * self._capacity * self.single_message_size)
+        
+        self._node.get_logger().warning(f"Writting at Serial:{self._message}")
+
         self._null_mac = np.zeros(6, dtype= np.uint8)
         self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
 
@@ -77,15 +77,14 @@ class MessageServer:
 
 
     def _read_topic(self, data: MessageServerTopic) -> None:
-        offset = self._password_len + \
-            data.socket_offset*self._capacity*self.single_message_size + \
+        offset = data.socket_offset*self._capacity*self.single_message_size + \
             data.socket_id * self.single_message_size
         
         self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
          
-        self._message[offset + 2] = data.payload[0]
-        self._message[offset + 3] = data.payload[1]
-        self._message[offset + 4] = data.payload[2]
+        self._message[offset + 2] = int(data.payload[0])
+        self._message[offset + 3] = int(data.payload[1])
+        self._message[offset + 4] = int(data.payload[2])
         
         self._node.get_logger().warning(f"Writting at Serial:{self._message}")
         self.serial_writer.write(bytearray(self._message))
@@ -124,7 +123,7 @@ class MessageServer:
     def _insert_mac_into_message(self, socket_id: int, sock_offset: int, mac_address: bytes) -> None:
         first_byte, second_byte = mac_address[-2:]
         
-        offset = self._password_len + sock_offset*self._capacity*self.single_message_size + socket_id * self.single_message_size
+        offset = sock_offset*self._capacity*self.single_message_size + socket_id * self.single_message_size
         
         self._message[offset] = first_byte
         self._message[offset + 1] = second_byte
