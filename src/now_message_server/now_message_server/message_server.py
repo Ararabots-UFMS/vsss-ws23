@@ -47,7 +47,7 @@ class MessageServer:
         # The payload for esp now
         self._message = [0] * (self.max_socket_offsets * self._capacity * self.single_message_size)
         
-        self._node.get_logger().warning(f"Writting at Serial:{self._message}")
+        # self._node.get_logger().warning(f"Writting at Serial:{self._message}")
 
         self._null_mac = np.zeros(6, dtype= np.uint8)
         self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
@@ -80,13 +80,13 @@ class MessageServer:
         offset = data.socket_offset*self._capacity*self.single_message_size + \
             data.socket_id * self.single_message_size
         
-        self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
+        # self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
          
         self._message[offset + 2] = int(data.payload[0])
         self._message[offset + 3] = int(data.payload[1])
         self._message[offset + 4] = int(data.payload[2])
         
-        self._node.get_logger().warning(f"Writting at Serial:{self._message}")
+        # self._node.get_logger().warning(f"Writting at Serial:{self._message}")
         self.serial_writer.write(bytearray(self._message))
 
 
