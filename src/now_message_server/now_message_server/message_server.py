@@ -68,6 +68,8 @@ class MessageServer:
         
         self.topic_publisher.publish_all()
 
+        # SERIAL MESSAGE SIZE 4 BYTES
+        # OFFSET, BYTE_1, BYTE_2, BYTE_3, BYTE_4   
         self.serial_writer = serial.Serial()
         self.serial_writer.baudrate = 115200
         self.serial_writer.port = '/dev/ttyUSB0'
@@ -79,14 +81,19 @@ class MessageServer:
             data.socket_id * self.single_message_size
         
          
-        self._message[offset + 2] = int(data.payload[0])
-        self._message[offset + 3] = int(data.payload[1])
-        self._message[offset + 4] = int(data.payload[2])
+        # self._message[offset + 2] = int(data.payload[0])
+        # self._message[offset + 3] = int(data.payload[1])
+        # self._message[offset + 4] = int(data.payload[2])
         
         # self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
         # self._node.get_logger().warning(f"Writting at Serial:{self._message}")
 
-        self.serial_writer.write(bytearray(self._message))
+        self.serial_writer.write(bytearray([
+            offset + 2, # Skips first two bytes used for mac address ID
+            int(data.payload[0]),
+            int(data.payload[1]),
+            int(data.payload[2])])
+        )
 
 
     def _service_request_handler(self,
@@ -124,8 +131,9 @@ class MessageServer:
         
         offset = sock_offset*self._capacity*self.single_message_size + socket_id * self.single_message_size
         
-        self._message[offset] = first_byte
-        self._message[offset + 1] = second_byte
+        # self._message[offset] = first_byte
+        # self._message[offset + 1] = second_byte
+        self.serial_writer.write(bytearray([offset, first_byte, second_byte, 0]))
 
     def _add_socket(self, socket_id: int, sock_offset: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
