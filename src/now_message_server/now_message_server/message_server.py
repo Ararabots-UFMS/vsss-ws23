@@ -68,32 +68,30 @@ class MessageServer:
         
         self.topic_publisher.publish_all()
 
-        # SERIAL MESSAGE SIZE 4 BYTES
-        # OFFSET, BYTE_1, BYTE_2, BYTE_3, BYTE_4   
         self.serial_writer = serial.Serial()
         self.serial_writer.baudrate = 115200
         self.serial_writer.port = '/dev/ttyUSB0'
         self.serial_writer.open()
 
+        self.timer = self._node.create_timer(1/120, self.timer_callback) # publish to serial at 120Hz
+
+    def publish_callback(self):
+        self.serial_writer.write(bytearray(self._message))
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         offset = data.socket_offset*self._capacity*self.single_message_size + \
             data.socket_id * self.single_message_size
         
          
-        # self._message[offset + 2] = int(data.payload[0])
-        # self._message[offset + 3] = int(data.payload[1])
-        # self._message[offset + 4] = int(data.payload[2])
+        self._message[offset + 2] = int(data.payload[0])
+        self._message[offset + 3] = int(data.payload[1])
+        self._message[offset + 4] = int(data.payload[2])
         
         # self._node.get_logger().warning(f"Writting at Serial offset {data.socket_offset} - id:{data.socket_id}")
         # self._node.get_logger().warning(f"Writting at Serial:{self._message}")
-
-        self.serial_writer.write(bytearray([
-            offset + 2, # Skips first two bytes used for mac address ID
-            int(data.payload[0]),
-            int(data.payload[1]),
-            int(data.payload[2])])
-        )
+        
+        # Removed from here to a timed callback
+        # self.serial_writer.write(bytearray(self._message))
 
 
     def _service_request_handler(self,
@@ -131,8 +129,8 @@ class MessageServer:
         
         offset = sock_offset*self._capacity*self.single_message_size + socket_id * self.single_message_size
         
-        # self._message[offset] = first_byte
-        # self._message[offset + 1] = second_byte
+        self._message[offset] = first_byte
+        self._message[offset + 1] = second_byte
         self.serial_writer.write(bytearray([offset, first_byte, second_byte, 0]))
 
     def _add_socket(self, socket_id: int, sock_offset: int, mac_address: bytes) -> ServerOpCode:
