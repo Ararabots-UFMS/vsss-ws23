@@ -24,7 +24,7 @@ class SenderPublisher:
         self.msg.socket_id = socket_id
         self.msg.socket_offset = socket_offset
 
-    def publish(self, priority: int, socket_id: int, msg: List):
+    def publish(self, priority: int, socket_id: int, socket_offset: int, msg: List):
         # self.msg.socket_id = socket_id
         
         self.msg.priority = priority
@@ -33,6 +33,8 @@ class SenderPublisher:
             self.msg.payload[0] = msg[0]
             self.msg.payload[1] = msg[1]
             self.msg.payload[2] = msg[2]
+            self.msg.socket_id = socket_id
+            self.msg.socket_offset = socket_offset
             self.publisher.publish(self.msg)
         except Exception as e:
             self._node.get_logger().fatal(self.TAG + " " + str(socket_id) + ": UNABLE TO PUBLISH MESSAGE: "

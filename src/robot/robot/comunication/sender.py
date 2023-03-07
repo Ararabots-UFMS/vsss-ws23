@@ -13,5 +13,6 @@ class Sender:
         self.publisher = SenderPublisher(node, socket_id, socket_offset)
 
     def send(self, priority: int,
-             msg: List) -> None:
-        self.publisher.publish(priority, self._socket_id, msg)
+            socket_id: int, socket_offset: int,
+            msg: List) -> None:
+        self.publisher.publish(priority, socket_id, socket_offset, msg)

@@ -172,7 +172,7 @@ class Robot(Node):
         if self._sender is not None:
             priority = self.get_priority()
             # self.get_logger().fatal(str(msg))
-            self._sender.send(priority, self._hardware.encode(msg))
+            self._sender.send(priority, self._socket_id, self.team_color, self._hardware.encode(msg))
 
         # self.roboto_vision()
 

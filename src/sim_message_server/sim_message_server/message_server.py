@@ -31,7 +31,7 @@ class MessageServer:
                  owner_id: str = None, 
                  team_color: int = 0,
                  max_sockets_capacity: int = 5,
-                 max_queue_size: int = 5,
+                 max_queue_size: int = 2,
                  socket_timeout: Seconds = 0.00064
                  ):
 
@@ -44,7 +44,7 @@ class MessageServer:
 
         self.game_topic_subs = {}
 
-        self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(self._capacity)]
+        self._sockets_status_matrix = [np.zeros(self._capacity, dtype= np.uint8) for _ in range(max_queue_size)]
 
         self.topic_publisher = MessageServerPublisher(self._node, self._sockets_status_matrix, self._capacity)
 
@@ -82,15 +82,15 @@ class MessageServer:
                          self._read_topic,
                          qos_profile=qos_profile)
 
-    def create_game_topic_subscription(self, game_topic_name: str, socket_offset: int) -> None:
-        if game_topic_name in self.game_topic_subs.keys():
-            return
+    # def create_game_topic_subscription(self, game_topic_name: str, socket_offset: int) -> None:
+    #     if game_topic_name in self.game_topic_subs.keys():
+    #         return
 
-        self.game_topic_subs[game_topic_name] = self._node.create_subscription(
-            GameTopic,
-            game_topic_name+'/game_topic',
-            lambda data: self._read_game_topic(socket_offset, data),
-            qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
+    #     self.game_topic_subs[game_topic_name] = self._node.create_subscription(
+    #         GameTopic,
+    #         game_topic_name+'/game_topic',
+    #         lambda data: self._read_game_topic(socket_offset, data),
+    #         qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         self._sim_send(data.socket_id, data.socket_offset, data.payload)
@@ -103,8 +103,8 @@ class MessageServer:
         response: MessageServerService.Response) -> int:
 
         response_value = ServerOpCode.ERROR
-        game_topic_name = ''.join([chr(i) for i in request.game_topic_name]).strip('\0')
-        self.create_game_topic_subscription(game_topic_name, request.socket_offset)
+        # game_topic_name = ''.join([chr(i) for i in request.game_topic_name]).strip('\0')
+        # self.create_game_topic_subscription(game_topic_name, request.socket_offset)
 
         if request.opcode == ServerOpCode.ADD.value:
             response_value = self._add_socket(request.socket_id, request.socket_offset)
@@ -138,8 +138,9 @@ class MessageServer:
     def on_shutdown(self) -> None:
         self.sock.close()
 
-    def _sim_send(self, id_: int, socket_offset: int, payload: List):
-        self._cmd_array[socket_offset].id = id_        
+    def _sim_send(self, id: int, socket_offset: int, payload: List):
+        self._cmd_array[socket_offset].id = id
+        self._cmd_array[socket_offset].yellowteam = socket_offset        
         # self.LEFTFORWARD_RIGHTFORWARD = 0x00  # 0000 0000
         # self.LEFTFORWARD_RIGHTBACKWARD = 0x01  # 0000 0001
         # self.LEFTBACKWARD_RIGHTFORWARD = 0x02  # 0000 0010

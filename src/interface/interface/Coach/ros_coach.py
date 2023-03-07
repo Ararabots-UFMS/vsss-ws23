@@ -11,15 +11,16 @@ class RosCoach:
     """
     This class is responsible for creating, modifying and launch robot nodes
     """
-    def __init__(self, node: Node):
+    def __init__(self, node: Node, team_color: int = 0):
         """
         :param node: Node
         :return: nothing
         """
         
         self._node = node
-        self.socket_offset = RosUtils.number_of_node_instances('virtual_field', self._node) - 1 
-        self.socket_offset = self.socket_offset if self.socket_offset >= 0 else 0 
+        self.socket_offset = team_color
+        # RosUtils.number_of_node_instances('virtual_field', self._node) - 1 
+        # self.socket_offset = self.socket_offset if self.socket_offset >= 0 else 0 
         self._executor = MultiThreadedExecutor()
         self._executor.add_node(self._node)
         

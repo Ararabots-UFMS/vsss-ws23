@@ -22,7 +22,7 @@ class Coach:
         self.faster_hash = ['robot_' + str(x) for x in range(1, 6)]
         
         self._node = node
-        self.ros_functions = RosCoach(self._node)
+        self.ros_functions = RosCoach(self._node, self.game_opt["time"])
 
         self.create_robots()
 
