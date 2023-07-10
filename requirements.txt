@@ -2,4 +2,4 @@ pyserial
 scipy
 python-statemachine
 defusedxml
-sklearn
+scikit-learn
