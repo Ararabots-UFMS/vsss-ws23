@@ -1,4 +1,4 @@
-pyBluez
+pyserial
 scipy
 python-statemachine
 defusedxml
