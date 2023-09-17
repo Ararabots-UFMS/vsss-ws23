@@ -73,10 +73,11 @@ class MessageServer:
         self.serial_writer.port = '/dev/ttyUSB0'
         self.serial_writer.open()
 
-        self.timer = self._node.create_timer(1/120, self.timer_callback) # publish to serial at 120Hz
+        self.timer = self._node.create_timer(1/120, self.publish_callback) # publish to serial at 120Hz
 
-    def publish_callback(self):
+    def publish_callback(self):        
         self.serial_writer.write(bytearray(self._message))
+        # print(self._message)
 
     def _read_topic(self, data: MessageServerTopic) -> None:
         offset = data.socket_offset*self._capacity*self.single_message_size + \
