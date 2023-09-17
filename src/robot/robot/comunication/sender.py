@@ -8,10 +8,11 @@ SelfControlMsg = namedtuple("SelfControlMsg", ["direction", "speed", "delta_thet
 
 
 class Sender:
-    def __init__(self,node:Node, socket_id: int, owner_name: str = None):
+    def __init__(self, node: Node, socket_id: int,socket_offset: int, owner_name: str = None):
         self._socket_id = socket_id
-        self.publisher = SenderPublisher(node, owner_name)
+        self.publisher = SenderPublisher(node, socket_id, socket_offset)
 
     def send(self, priority: int,
-             msg: List) -> None:
-        self.publisher.publish(priority, self._socket_id, msg)
+            socket_id: int, socket_offset: int,
+            msg: List) -> None:
+        self.publisher.publish(priority, socket_id, socket_offset, msg)

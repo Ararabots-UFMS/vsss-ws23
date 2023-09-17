@@ -30,6 +30,7 @@ class Robot(Node):
                  robot_role: int,
                  owner_name: str,
                  socket_id: int = -1,
+                 socket_offset: int = 0,
                  should_debug: int = 0):
 
         robot_name = "ROBOT_" + str(robot_id)
@@ -42,6 +43,7 @@ class Robot(Node):
         self.robot_body = robot_body
         self.tag = tag
         self._socket_id = socket_id
+        self._socket_offset = socket_offset
         self._should_debug = should_debug
         
         self._owner_name = owner_name        
@@ -80,7 +82,7 @@ class Robot(Node):
             self.get_logger().fatal("Using fake bluetooth")
             self._sender = None
         else:
-            self._sender = Sender(self, self._socket_id, self._owner_name)
+            self._sender = Sender(self, self._socket_id, self._socket_offset, self._owner_name)
 
         # ROBOTO VISION
         #self.imgField = virtualField(4 * 150,
@@ -170,7 +172,7 @@ class Robot(Node):
         if self._sender is not None:
             priority = self.get_priority()
             # self.get_logger().fatal(str(msg))
-            self._sender.send(priority, self._hardware.encode(msg))
+            self._sender.send(priority, self._socket_id, self.team_color, self._hardware.encode(msg))
 
         # self.roboto_vision()
 

@@ -7,7 +7,7 @@ from utils.ros_utils import MsgOrigin
 from sys_interfaces.msg import ThingsPosition, GameTopic, DebugTopic
 from strategy.strategy_utils import GameStates
 from strategy.behaviour import Goal
-
+from rclpy.qos import QoSPresetProfiles
 
 class RosRobotSubscriberAndPublisher:
     """
@@ -26,21 +26,21 @@ class RosRobotSubscriberAndPublisher:
             ThingsPosition, 
             '/things_position',
             self.read_topic, 
-            qos_profile=5
+            qos_profile=QoSPresetProfiles.SENSOR_DATA.value
         )
 
         self.robot.create_subscription(
             GameTopic, 
             _game_topic_name, 
             self.read_game_topic, 
-            qos_profile=5
+            qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value
         )
 
         if int(_should_debug):            
             self.pub = self.robot.create_publisher(
                 DebugTopic, 
                 'debug_topic', 
-                qos_profile=1
+                qos_profile=QoSPresetProfiles.SENSOR_DATA.value
             )
 
 

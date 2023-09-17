@@ -7,6 +7,7 @@ import numpy as np
 from numpy import array, asarray, any
 from sys_interfaces.msg import ThingsPosition, DebugTopic
 #from interface.View.MainWindowView import MainWindowView
+from rclpy.qos import QoSPresetProfiles
 
 class RosMainWindowSubscriber:
     def __init__(self, node:Node, window, game_topic_name = 'game_topic_0'):
@@ -24,14 +25,14 @@ class RosMainWindowSubscriber:
             ThingsPosition, 
             '/things_position', 
             self.read, 
-            qos_profile=5)
+            qos_profile=QoSPresetProfiles.SENSOR_DATA.value)
 
         # Debug topic
         self._node.create_subscription(
             DebugTopic, 
             'debug_topic', 
             self.read_debug_topic, 
-            qos_profile= 5)
+            qos_profile= QoSPresetProfiles.SENSOR_DATA.value)
 
         # Queue of data from Topic Things position
         msg = ThingsPosition()

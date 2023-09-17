@@ -6,7 +6,7 @@ PKG = 'verysmall'
 import numpy as np
 from sys_interfaces.msg import ThingsPosition
 from sys_interfaces.srv import VisionCommand
-
+from rclpy.qos import QoSPresetProfiles
 
 class RosVisionService:
     """
@@ -33,7 +33,7 @@ class RosVisionPublisher:
         self.pub = self._node.create_publisher(
             ThingsPosition, 
             '/things_position', 
-            qos_profile=1)
+            qos_profile=QoSPresetProfiles.SENSOR_DATA.value)
 
     def publish(self, ball_pos, yellow_pos, yellow_orient, blue_pos, 
                 blue_orientation, fps):

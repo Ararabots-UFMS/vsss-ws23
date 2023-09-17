@@ -17,9 +17,9 @@ from vision import COLORS
 from sys_interfaces.msg import GameTopic
 from utils.json_handler import JsonHandler
 from vision.ros_vision_publisher import RosVisionPublisher
-
+from rclpy.qos import QoSPresetProfiles
 from vision.seekers.circular_color_tag_seeker import CircularColorTagSeeker
-
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 
 # @author Wellington Castro <wvmcastro>
 
@@ -53,12 +53,18 @@ class Vision:
         self.blue_team_orientation = np.array([0.0] * 5)
         self.blue_team_speed = np.array([[0.0, 0.0]] * 5)
 
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
         # Subscribes to the game topic
         self._node.create_subscription(
             GameTopic,
             'game_topic', 
             self.on_game_state_change,
-            qos_profile=5
+            qos_profile=qos_profile
         )
 
         self.game_state = None
