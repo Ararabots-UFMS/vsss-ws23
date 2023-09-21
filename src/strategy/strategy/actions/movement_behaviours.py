@@ -5,6 +5,8 @@ from typing import Iterable
 from typing import Tuple
 from utils.linalg import Vec2D
 from copy import deepcopy
+import time
+
 
 import numpy as np
 # import rospy
@@ -21,6 +23,7 @@ from strategy.behaviour import TaskStatus, BlackBoard, NO_ACTION
 from strategy.strategy_utils import spin_direction, object_in_defender_range
 from utils.json_handler import JsonHandler
 from utils.math_utils import predict_speed, angle_between, clamp
+
 
 from utils.debug_profile import debug_profiler
 
@@ -120,9 +123,6 @@ class UnivectorTask(ABC):
 
 
 class GoToPositionUsingUnivector(UnivectorTask):
-
-    # Gambiarra: Essa disgraça é exatamente a mesma coisa que o GoToGoalUsingUnivector, mas sem tempo pra refatorar agora ta ok
-
     def __init__(self, name="Go to position Univector", max_speed: int = 75, 
                  acceptance_radius: float = AcceptanceRadiusEnum.DEFAULT.value,
                  speed_prediction: bool = False, position=None):
@@ -589,7 +589,7 @@ class GoToBallUsingMove2Point(TreeNode):
 
 class GoBack(TreeNode):
     def __init__(self, name: str = "GoBack",
-                 max_speed: int = 80,
+                 max_speed: int = 200,
                  acceptance_radius: float = AcceptanceRadiusEnum.DEFAULT.value):
         super().__init__(name)
         self._acceptance_radius = acceptance_radius
@@ -652,3 +652,24 @@ class FollowAlly(TreeNode):
         self._move_to_ally_task.set_position(ally_position)
 
         return self._move_to_ally_task.run(blackboard)
+    
+class Sleep(TreeNode):
+    def __init__(self, timer):
+        self.timer = timer
+
+    def run(self):
+        time.sleep(self.timer)
+        return TaskStatus.SUCCESS, NO_ACTION
+    
+class AutomaticMove(TreeNode):
+    def __init__(self, state, team_side, auto_pos_path='/home/vsss/vsss_ws/src/parameters/replacer_positions.json'):
+        self.state = state
+        self.team_side = team_side
+        self.auto_pos_path = auto_pos_path
+
+    def get_position(self):
+        position_dict = JsonHandler.read(self.auto_pos_path)
+        position_dict[self.state][self.team_role]
+
+    # def run(self):
+         

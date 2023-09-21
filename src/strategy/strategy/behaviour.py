@@ -8,7 +8,7 @@ import numpy as np
 from itertools import count
 from robot.movement.definitions import OpCodes
 from strategy.arena_utils import RIGHT, LEFT
-from strategy.strategy_utils import GameStates
+from strategy.strategy_utils import GameStates, BehavioralStates
 from utils import physics
 from utils.json_handler import JsonHandler
 from utils.linalg import *
@@ -17,7 +17,6 @@ angle = distance = float
 speed = int
 ACTION = Tuple[OpCodes, angle, speed, distance]
 NO_ACTION = (-1, 0, 0, 0)
-
 
 class TaskStatus(Enum):
     SUCCESS = 0
@@ -146,7 +145,7 @@ class Goal:
 
 class Game:
     def __init__(self):
-        self.state = GameStates.STOPPED
+        self.state = BehavioralStates.STOPPED
         self.meta_robot_id = 0
         self.freeball_robot_id = 0
         self.penalty_robot_id = 0

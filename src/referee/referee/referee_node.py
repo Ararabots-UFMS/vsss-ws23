@@ -96,16 +96,30 @@ class RefereeNode:
         # Ex: Penalty ocorreu:
         # Pacotes enviados pelo juiz: Penalty -> Stopped -> Game on
         
-        if event < 4:
+        if event <= 4:
             self.mercury.set_game_state(0)
             self._last_game_event = event
         else:
-            if (event == 6) and (self._last_game_event < 4):
+            if event == 6 and self._last_game_event <= 4:
                 event = self._last_game_event
-                self._last_game_event = event
-            
+
             state = RefereeNode.ref_to_game_state[event]
             self.mercury.set_game_state(state)
+
+
+
+
+
+        # if event < 4:
+        #     self.mercury.set_game_state(0)
+        #     self._last_game_event = event
+        # else:
+        #     if (event == 6) and (self._last_game_event < 4):
+        #         event = self._last_game_event
+        #         self._last_game_event = event
+            
+        #     state = RefereeNode.ref_to_game_state[event]
+        #     self.mercury.set_game_state(state)
         
         # rospy.logfatal(event)
         self.mercury.publish()

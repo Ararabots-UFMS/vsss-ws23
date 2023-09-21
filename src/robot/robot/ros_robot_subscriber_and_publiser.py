@@ -5,7 +5,7 @@ from struct import unpack
 from utils.linalg import Vec2D
 from utils.ros_utils import MsgOrigin
 from sys_interfaces.msg import ThingsPosition, GameTopic, DebugTopic
-from strategy.strategy_utils import GameStates
+from strategy.strategy_utils import GameStates, BehavioralStates
 from strategy.behaviour import Goal
 from rclpy.qos import QoSPresetProfiles
 
@@ -54,7 +54,7 @@ class RosRobotSubscriberAndPublisher:
         :param data: ROS game topic message
         :return: nothing
         """
-        self.robot.blackboard.game.state = GameStates(data.game_state)
+        self.robot.blackboard.game.state = BehavioralStates(data.game_state)
         
         if data.msg_origin == MsgOrigin.GAME_TOPIC.value:
             self.robot.blackboard.home_goal.side = data.team_side

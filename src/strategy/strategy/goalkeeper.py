@@ -7,7 +7,7 @@ from strategy.actions.state_behaviours import InState
 from strategy.arena_utils import ArenaSections, LEFT, inside_rectangle
 from strategy.base_trees import BaseTree
 from strategy.behaviour import *
-from strategy.strategy_utils import GameStates
+from strategy.strategy_utils import GameStates, BehavioralStates
 
 from strategy.acceptance_radius import AcceptanceRadiusEnum
 from utils.math_utils import RAD2DEG
@@ -67,7 +67,7 @@ class GoalKeeper(BaseTree):
         normal = Sequence("Normal")
         self.add_child(normal)
 
-        normal.add_child(InState("CheckNormalState", GameStates.NORMAL))
+        normal.add_child(InState("CheckNormalState", BehavioralStates.NORMAL))
         normal_actions = Selector("NormalActions")
         normal.add_child(normal_actions)
 

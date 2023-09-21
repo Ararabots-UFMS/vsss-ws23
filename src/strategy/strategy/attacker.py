@@ -16,7 +16,7 @@ from strategy.actions.movement_behaviours import GoToBallUsingUnivector,\
 from strategy.actions.state_behaviours import InState
 from strategy.base_trees import BaseTree, FreeWayAttack
 from strategy.behaviour import *
-from strategy.strategy_utils import GameStates
+from strategy.strategy_utils import GameStates, BehavioralStates
 from strategy.arena_utils import ArenaSections, univector_pos_section
 from strategy.actions.decorators import SafeHeadOnBorder, InvertOutput
 
@@ -35,7 +35,7 @@ class Attacker(BaseTree):
 
         # Checa estado do jogo e estabelece o comportamento padrão/normal
         normal = SafeHeadOnBorder(child=Sequence('Normal'))
-        normal.add_child(InState('CheckNormalState', GameStates.NORMAL))
+        normal.add_child(InState('CheckNormalState', BehavioralStates.NORMAL))
 
         # normal.add_child(self.ball_on_goalkeeper_section_tree())
 
@@ -61,7 +61,7 @@ class Attacker(BaseTree):
         # main.add_child(StopAction())
         main.add_child(
             FollowMainAttacker(
-                max_speed=45,
+                max_speed=100,
                 acceptance_radius=40
             )
         )
@@ -76,7 +76,7 @@ class Attacker(BaseTree):
         middle = Sequence("Ball out of border")
         # middle.add_child(FreeWayAttack("Freeway"))
         univector_movement = GoToBallUsingUnivector("AttackBallInTheMiddle",
-                                            max_speed=60,
+                                            max_speed=250,
                                             acceptance_radius=AcceptanceRadiusEnum.LARGE.value+1,
                                             speed_prediction=True)
 
@@ -118,7 +118,7 @@ class Attacker(BaseTree):
         spin_sequence.add_child(SpinTask())
 
         dash_sequence.add_child(IsBehindBall("IsBehindBall", 65))
-        dash_sequence.add_child(ChargeWithBall("Attack", 100))
+        dash_sequence.add_child(ChargeWithBall("Attack", 250))
 
         return tree
     
@@ -126,7 +126,7 @@ class Attacker(BaseTree):
         tree = Sequence("Ball on border")
         tree.add_child(IsBallInBorder())
         tree.add_child(CanUseMoveToPointSafely())  
-        tree.add_child(GoToBallUsingMove2Point("GotoBallMove2point", speed=60,acceptance_radius=AcceptanceRadiusEnum.LARGE.value))
+        tree.add_child(GoToBallUsingMove2Point("GotoBallMove2point", speed=255,acceptance_radius=AcceptanceRadiusEnum.LARGE.value))
         tree.add_child(SpinTask('Spin'))
 
         return tree
@@ -145,7 +145,7 @@ class Attacker(BaseTree):
 
     def ball_on_goalkeeper_section_tree(self) -> TreeNode:
 
-        speed = 60
+        speed = 250
         accept_radius = AcceptanceRadiusEnum.LARGE.value
 
 
@@ -209,7 +209,7 @@ class Attacker(BaseTree):
 
 class FollowMainAttacker(TreeNode):
 
-    def __init__(self, max_speed: int = 60, 
+    def __init__(self, max_speed: int = 255 , 
                        acceptance_radius: int = 20,
                        name: str = "FollowMainAttacker"):
 

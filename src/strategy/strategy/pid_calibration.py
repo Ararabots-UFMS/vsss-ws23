@@ -1,7 +1,7 @@
 from strategy.behaviour import Selector, Sequence, BlackBoard, TaskStatus
 from strategy.actions.movement_behaviours import GoToPosition, StopAction, SpinTask
 from strategy.actions.state_behaviours import InState
-from strategy.strategy_utils import GameStates
+from strategy.strategy_utils import GameStates, BehavioralStates
 from itertools import cycle
 from robot.movement.definitions import OpCodes
 from strategy.actions.decorators import Timer, IgnoreSmoothing
@@ -15,7 +15,7 @@ class CalibrationTree(Selector):
         super().__init__(name)
         self.waypoints_list = cycle([(37, 25), (117, 25), (117, 105), (37, 105)])
         stop_sequence = Sequence('Stop Sequence')
-        stop_sequence.children.append(InState('Stopped Game?', GameStates.STOPPED))
+        stop_sequence.children.append(InState('Stopped Game?', BehavioralStates.STOPPED))
         stop_sequence.children.append(StopAction('Wait'))
         self.children.append(stop_sequence)
 
