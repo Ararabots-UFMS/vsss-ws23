@@ -3,3 +3,6 @@ scipy
 python-statemachine
 defusedxml
 scikit-learn
+empy
+catkin_pkg
+lark
