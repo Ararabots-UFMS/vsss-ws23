@@ -8,13 +8,14 @@ from message_server.opcodes import ServerOpCode
 import numpy as np
 import platform
 from rclpy.qos import QoSPresetProfiles
+from random import randint
 class GameTopicPublisher:
     """
     This class can publish Game related messages on a 'Game topic' Topic
     :return: nothing
     """
 
-    def __init__(self, node: Node = False, 
+    def __init__(self, node: Node = None, 
                        _game_opt: dict = None, 
                        _robot_params: dict = None,
                        _robot_name_roles: dict = None, 
@@ -25,7 +26,9 @@ class GameTopicPublisher:
         :param _robot_name_roles: Robot roles Json
         :param owner_id: int
         """
-        
+        if node is None:
+            node = rclpy.create_node('aaaaaaaaaaa', namespace=owner_id) # TODO; nao sei qual o melhor lugar pra colocar isso
+
         self._node = node
 
         # else is only a publisher

@@ -1,48 +1,27 @@
-#!/usr/bin/python3
-from re import T
-from types import new_class
-import referee.sim.vssref_command_pb2 as command_pb2
-from referee.sim.vssref_common_pb2 import Frame
-import referee.sim.vssref_placement_pb2 as placement_pb2
+import socket
+import struct
+from time import time
+import referee.vssref_command_pb2 as command
+import referee.vssref_common_pb2 as common
 
-import sys
-import cv2
-from random import randint
-from sys import argv
+
+import rclpy
+from rclpy.node import Node
+
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+
+from sys_interfaces.msg import GameTopic
+from utils.ros_utils import MsgOrigin
+from interface.ros_game_topic_publisher import GameTopicPublisher
 
 from utils.model import Model
-import rospy
 
-import os
-from enum import Enum
-old_path = sys.path[0]
-sys.path[0] = root_path = os.environ['ROS_ARARA_ROOT']+"src/"
-from ROS.ros_game_topic_publisher import GameTopicPublisher 
-from ROS.ros_vision_publisher import RosVisionService
-from ROS.ros_utils import MsgOrigin, RosUtils
-sys.path[0] = old_path
-from utils.socket_interfaces import ReceiverSocket
+from random import randint
 
-from verysmall.msg import game_topic
+from sys import argv
 
-from replacer import ReplacerInterface
 
-class RefereeNode:
-
-    """
-    A node for spinning the Vision
-    """
-
-    '''
-    FREE_KICK = 0;
-	PENALTY_KICK = 1;
-	GOAL_KICK = 2;
-	FREE_BALL = 3;
-	KICKOFF = 4;
-	STOP = 5;
-	GAME_ON = 6;
-	HALT = 7;
-    '''
+class RefereeNode(Node):
 
     ref_to_game_state = [
         2, # Free ball
@@ -55,38 +34,25 @@ class RefereeNode:
         0  # Stop
     ]
 
-    UDP_IP = "224.5.23.2"
-    UDP_PORT = 10003
+    def __init__(self, referee_ip = "224.5.23.2", referee_port = 10003):
+        super().__init__('referee')
+        self.referee_ip = referee_ip
+        self.referee_port = referee_port
 
-    def __init__(self, owner_id: str, team_side: int = None,  team_color: int = None):
+        self.referee_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.referee_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 128)
+        self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+        self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, struct.pack("=4sl", socket.inet_aton(self.referee_ip), socket.INADDR_ANY))
+        self.referee_sock.bind((self.referee_ip, self.referee_port))
 
         model = Model()
-        
-        if team_side is not None and team_color is not None:
-            model.game_opt['side'] = team_side
-            model.game_opt['time'] = team_color
-
-        self.mercury = GameTopicPublisher(True, model.game_opt, model.robot_params, model.robot_roles, owner_id)        
+        self.mercury = GameTopicPublisher(None, model.game_opt, model.robot_params, model.robot_roles, owner_id='vsss')
         self.mercury.msg.msg_origin = MsgOrigin.REFEREE.value
 
-        self.message = command_pb2.VSSRef_Command() # singleton para comandos de leitura, só precisamos parsear (que palavra feia KK) dados que chegam.
+        self.message = command.VSSRef_Command()
 
-        # Estes parâmetros são None quando a interface é utilizada (sim_main.launch)
-        if team_side is not None and team_color is not None:
-            self.replacer = ReplacerInterface(
-                team_side,
-                team_color 
-            )
-        else:
-            # Usa-se os parâmetros do game-topic
-            self.replacer = ReplacerInterface(
-                self.mercury.msg.team_side,
-                self.mercury.msg.team_color 
-            )
-
-        # Configuração dos sockets
-        self.sock = ReceiverSocket.create(self.UDP_IP, self.UDP_PORT) 
-        # Armazenando o último estado de jogo.
         self._last_game_event = 5
 
     def _publish_event(self, event: int) -> None:
@@ -105,28 +71,12 @@ class RefereeNode:
 
             state = RefereeNode.ref_to_game_state[event]
             self.mercury.set_game_state(state)
-
-
-
-
-
-        # if event < 4:
-        #     self.mercury.set_game_state(0)
-        #     self._last_game_event = event
-        # else:
-        #     if (event == 6) and (self._last_game_event < 4):
-        #         event = self._last_game_event
-        #         self._last_game_event = event
             
-        #     state = RefereeNode.ref_to_game_state[event]
-        #     self.mercury.set_game_state(state)
-        
-        # rospy.logfatal(event)
-        self.mercury.publish()
+            self.mercury.publish()
 
     def tick(self):
 
-        data, _ = self.sock.recvfrom(1024) # buffer size is 1024 bytes
+        data, _ = self.referee_sock.recvfrom(1024) # buffer size is 1024 bytes
         self.message.ParseFromString(data)
 
         event = self.message.foul
@@ -141,44 +91,25 @@ class RefereeNode:
         # TODO: bolar uma lógica para preparar o próximo game_state. Depois que uma falta ocorre, há período de espera.
 
         # Caso o estado do jogo tenha sido alterado, atualizar o game_topic
-        rospy.logdebug(f"Novo evento {event}")
+        # rospy.logdebug(f"Novo evento {event}")
 
         # Remover este if no futuro
-        if event < 5:
-            # Informações de interesse. Acho que nao precisamos saber em que tempo do jogo estamos 
-            # nem a timestamp do evento...
-            rospy.logfatal(f"- Tipo (foul): {self.message.foul}")
-            rospy.logfatal(f"- Cor do time: {self.message.teamcolor}")
-            rospy.logfatal(f"- Quadrante: {self.message.foulQuadrant}")
-            # Interromper o jogo neste caso
-            self.replacer.handle_event(self.message)
+        # if event < 5:
+        #     # Informações de interesse. Acho que nao precisamos saber em que tempo do jogo estamos 
+        #     # nem a timestamp do evento...
+        #     # rospy.logfatal(f"- Tipo (foul): {self.message.foul}")
+        #     # rospy.logfatal(f"- Cor do time: {self.message.teamcolor}")
+        #     # rospy.logfatal(f"- Quadrante: {self.message.foulQuadrant}")
+        #     # Interromper o jogo neste caso
+        #     self.replacer.handle_event(self.message)
 
         self._publish_event(event)
 
-    def vision_management(self, req):
-        """
-        This is the reading function for a service response
-        :param req: variable to get the request operation
-        :return: bool
-        """
-        success = True
-        self.state_changed = req.operation
-        return success
+        
 
+def main(args=None):
+    rclpy.init(args=args)
 
-if __name__ == "__main__":
-    try:
-        owner_id = argv[1]
-    except ValueError:
-        owner_id = 'Player_' + str(randint(0, 99999))
-
-    try:
-        vision_node = RefereeNode(owner_id, int(argv[2]), int(argv[3]))
-    except:
-        vision_node = RefereeNode(owner_id)
-
-    # rate = rospy.Rate(30)  # 30hz
-
-    while not rospy.is_shutdown():
-        vision_node.tick()
-        # rate.sleep()
+    referee = RefereeNode()
+    while 1:
+        referee.tick()
