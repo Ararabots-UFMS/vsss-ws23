@@ -64,6 +64,10 @@ class RosRobotSubscriberAndPublisher:
             self.robot.behaviour_tree = self.robot.behaviour_trees[self.robot.blackboard.robot.role]
             self.robot.blackboard.current_automatic_position = data.automatic_position
 
+        else:
+            # Informações do referee
+            self.robot.blackboard.advantage_team = data.team_color
+
 
         self.robot.blackboard.game.penalty_robot_id = data.penalty_robot
         self.robot.blackboard.game.freeball_robot_id = data.freeball_robot

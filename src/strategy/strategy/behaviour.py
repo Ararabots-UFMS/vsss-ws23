@@ -31,6 +31,8 @@ class BlackBoard:
         self.game = Game()
         self.my_id = None
         self.current_orientation = None
+        self.team_color = None
+        self.advantage_team = 2 # None
         self.enemy_goal = Goal()
         self.home_goal = Goal()
 

@@ -65,6 +65,7 @@ class Robot(Node):
         self.blackboard.home_goal.side = team_side
         self.blackboard.enemy_goal.side = not team_side
         self.blackboard.robot.role = robot_role
+        self.blackboard.team_color = team_color
         
         self._controller = Control(self._hardware, self.blackboard, constants, self._max_fine_movement_speed)
         self.pid_on_hardware = False
