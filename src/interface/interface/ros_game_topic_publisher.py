@@ -14,7 +14,7 @@ class GameTopicPublisher:
     :return: nothing
     """
 
-    def __init__(self, node: Node = False, 
+    def __init__(self, node: Node = None, 
                        _game_opt: dict = None, 
                        _robot_params: dict = None,
                        _robot_name_roles: dict = None, 
@@ -25,6 +25,9 @@ class GameTopicPublisher:
         :param _robot_name_roles: Robot roles Json
         :param owner_id: int
         """
+
+        if node is None:
+            node = rclpy.create_node('aaaaaaaaaaa', namespace=owner_id) # TODO; nao sei qual o melhor 
         
         self._node = node
 

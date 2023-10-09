@@ -2,19 +2,19 @@
     "robot_1": {
         "active": 1,
         "bluetooth_mac_address": "ROBOT_TEST_2",
-        "body_id": "noriko",
-        "role": "Attacker",
-        "tag_number": 2
+        "body_id": "simulation_fixed_Kp",
+        "role": "Defender",
+        "tag_number": 0
     },
     "robot_2": {
-        "active": 0,
+        "active": 1,
         "bluetooth_mac_address": "ROBOT_TEST",
         "body_id": "simulation_fixed_Kp",
-        "role": "PID Calibration",
+        "role": "Goalkeeper",
         "tag_number": 1
     },
     "robot_3": {
-        "active": 0,
+        "active": 1,
         "bluetooth_mac_address": "ROBOT_TEST_2",
         "body_id": "simulation_fixed_Kp",
         "role": "Attacker",

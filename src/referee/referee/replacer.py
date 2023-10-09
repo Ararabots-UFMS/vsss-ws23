@@ -1,11 +1,13 @@
 import json
 from utils.socket_interfaces import SenderSocket
-import rospy
+import socket
+import struct
+# import rospy
 from utils.json_handler import JsonHandler
 from abc import ABC, abstractmethod
 
-import referee.sim.vssref_placement_pb2 as placement_pb2
-from referee.sim import vssref_command_pb2
+import referee.vssref_placement_pb2 as placement_pb2
+from referee import vssref_command_pb2
 
 class CMDFactory(ABC):
 
@@ -22,10 +24,10 @@ class CMDFactory(ABC):
     def get_positions(self, target_team: int) -> dict:
         # Retorna as posições de reposicionamento, dependendo se o time sofreu ou não a falta.
         if target_team == self.team_color:
-            rospy.logfatal(f"- On DEFENCE")
+            # rospy.logfatal(f"- On DEFENCE")
             return self.positions["DEFENCE"]
         else:
-            rospy.logfatal(f"- On ATTACK")
+            # rospy.logfatal(f"- On ATTACK")
             return self.positions["ATTACK"]
 
     @abstractmethod
@@ -220,10 +222,23 @@ class ReplacerInterface:
     UDP_IP = "224.5.23.2"
     UDP_PORT = 10004
 
-    def __init__(self, team_side: int,
-                       team_color: int):
+    def __init__(self, 
+                 team_side: int,
+                 team_color: int,
+                 referee_ip = "224.5.23.2", 
+                 referee_port = 10003):
 
-        rospy.logfatal(f"Configurando Replacer para: cor {team_color}, lado {team_side}")
+        # rospy.logfatal(f"Configurando Replacer para: cor {team_color}, lado {team_side}")
+        # self.referee_ip = referee_ip
+        # self.referee_port = referee_port
+
+        # self.referee_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        # self.referee_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
+        # self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 128)
+        # self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_LOOP, 1)
+        # self.referee_sock.setsockopt(socket.IPPROTO_IP, socket.IP_ADD_MEMBERSHIP, struct.pack("=4sl", socket.inet_aton(self.referee_ip), socket.INADDR_ANY))
+        # self.referee_sock.bind((self.referee_ip, self.referee_port))
 
         self.team_side = team_side
         self.team_color = team_color
@@ -254,10 +269,10 @@ class ReplacerInterface:
     def handle_event(self, event: vssref_command_pb2.VSSRef_Command) -> None:
         # Método que recebe o evento e o time que sofreu a falta e é responsável por gerar
         # e enviar o comando de reposicionamento para o Referee.
-        
         # Selecionar a fábrica para criação do comando
         factory = self._cmd_factories[event.foul]
         # Geração do comando a ser enviado para o Replacer, baseado no time que sofreu a penalidade
         cmd = factory.generate_cmd(event)
+        
         # Envio através do socket
         self.socket.sendall(cmd)
