@@ -25,7 +25,7 @@ def main(args=None):
 
     try:
         owner_id = argv[1]
-    except ValueError:
+    except IndexError:
         owner_id = 'Player_One'
 
     owner_id += '_' + str(randint(0, 99999))
