@@ -86,7 +86,7 @@ class RefereeNode(Node):
                 event = self._last_game_event
                 print(event)
 
-            state = self.ref_to_game_state[event]
+            state = RefereeNode.ref_to_game_state[event]
             self.game_topic_pub.set_game_state(state)
             
             self.game_topic_pub.publish()
