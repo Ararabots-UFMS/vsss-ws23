@@ -76,7 +76,7 @@ class Attacker(BaseTree):
         middle = Sequence("Ball out of border")
         # middle.add_child(FreeWayAttack("Freeway"))
         univector_movement = GoToBallUsingUnivector("AttackBallInTheMiddle",
-                                            max_speed=100,
+                                            max_speed=150,
                                             acceptance_radius=AcceptanceRadiusEnum.LARGE.value+1,
                                             speed_prediction=True)
 
@@ -240,11 +240,9 @@ class AmIClosestToBall(TreeNode):
         current_robot_to_ball_distance = (blackboard.robot.position - ball_position).norm()
 
         for robot in blackboard.home_team.robots:
-            # Gambiarra: desconsidera robôs não inicializados e o goleiro
-            if robot.id <= 0:
-                continue
-            robot_to_ball_distance = (robot.position - ball_position).norm()
-            if robot_to_ball_distance < current_robot_to_ball_distance:
-                return TaskStatus.FAILURE, NO_ACTION
+            if robot.id >= 0 and robot.role != 2:
+                robot_to_ball_distance = (robot.position - ball_position).norm()
+                if robot_to_ball_distance < current_robot_to_ball_distance:
+                    return TaskStatus.SUCCESS, NO_ACTION
 
         return TaskStatus.SUCCESS, NO_ACTION

@@ -15,17 +15,17 @@
     },
     "robot_3": {
         "active": 1,
-        "bluetooth_mac_address": "walle",
-        "body_id": "walle",
+        "bluetooth_mac_address": "viscoso",
+        "body_id": "viscoso",
         "role": "Attacker",
         "tag_number": 0
     },
     "robot_4": {
         "active": 0,
-        "bluetooth_mac_address": "nenhum",
-        "body_id": "nenhum",
+        "bluetooth_mac_address": "walle",
+        "body_id": "walle",
         "role": "Attacker",
-        "tag_number": 3
+        "tag_number": 0
     },
     "robot_5": {
         "active": 0,
