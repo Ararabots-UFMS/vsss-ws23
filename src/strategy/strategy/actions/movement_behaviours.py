@@ -5,6 +5,7 @@ from typing import Iterable
 from typing import Tuple
 from utils.linalg import Vec2D
 from copy import deepcopy
+import time
 
 import numpy as np
 # import rospy
@@ -652,3 +653,24 @@ class FollowAlly(TreeNode):
         self._move_to_ally_task.set_position(ally_position)
 
         return self._move_to_ally_task.run(blackboard)
+
+
+class Sleep(TreeNode):
+    def __init__(self, timer):
+        self.timer = timer
+
+    def run(self):
+        time.sleep(self.timer)
+        return TaskStatus.SUCCESS, NO_ACTION
+
+class AutomaticMove(TreeNode):
+    def __init__(self, state, team_side, auto_pos_path='/home/vsss/vsss_ws/src/parameters/replacer_positions.json'):
+        self.state = state
+        self.team_side = team_side
+        self.auto_pos_path = auto_pos_path
+
+    def get_position(self):
+        position_dict = JsonHandler.read(self.auto_pos_path)
+        position_dict[self.state][self.team_role]
+
+    # def run(self):

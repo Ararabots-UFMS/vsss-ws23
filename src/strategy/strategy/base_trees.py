@@ -120,7 +120,6 @@ class BaseTree(Selector):
         super().__init__(name)
 
         self.add_child(Stopped("Stopped"))
-        self.add_child(AutomaticPosition())
-        self.add_child(Penalty("Penalty"))
-        self.add_child(FreeBall("FreeBall"))
-        self.add_child(Meta("Meta"))
+        # self.add_child(Penalty("Penalty"))
+        # self.add_child(FreeBall("FreeBall"))
+        # self.add_child(Meta("Meta"))

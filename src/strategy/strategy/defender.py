@@ -22,7 +22,7 @@ class Defender(BaseTree):
         border = Sequence("Border")
         border.add_child(IsBallInRangeOfDefense("RangeOfDefense"))
         border.add_child(IsBallInDefenseBorder("BallInBorder"))
-        border.add_child(GoToBallUsingMove2Point("Move2Point", speed=60, 
+        border.add_child(GoToBallUsingMove2Point("Move2Point", speed=100, 
         acceptance_radius=AcceptanceRadiusEnum.DEFAULT.value))
         border.add_child(SpinTask("Spin"))
         defend.add_child(border)
@@ -30,7 +30,7 @@ class Defender(BaseTree):
         middle = Sequence("Middle")
         middle.add_child(IsBallInRangeOfDefense("InRangeOfDefense"))
         middle.add_child(GoToBallUsingUnivector("UsingUnivector", 
-        acceptance_radius=AcceptanceRadiusEnum.DEFAULT.value, max_speed=60,
+        acceptance_radius=AcceptanceRadiusEnum.DEFAULT.value, max_speed=100,
                                                 speed_prediction=False))
         middle.add_child(ChargeWithBall("ChargeWithBall"))
 
@@ -38,7 +38,7 @@ class Defender(BaseTree):
 
         ball_near_goal_check = Sequence("CanRobotUseMove2PointToRecoverBall?")
         ball_near_goal_check.add_child(CanDefenderUseMove2PointToRecoverBall())
-        ball_near_goal_check.add_child(GoToBallUsingMove2Point("Move2Point", speed=60, 
+        ball_near_goal_check.add_child(GoToBallUsingMove2Point("Move2Point", speed=100, 
         acceptance_radius=AcceptanceRadiusEnum.DEFAULT.value))
 
         defend.add_child(self.ball_on_goalkeeper_section_tree())
@@ -71,7 +71,7 @@ class Defender(BaseTree):
         #self._goalkeeper_section_task = GoToPositionUsingUnivector(max_speed=50,
         #                                acceptance_radius=AcceptanceRadiusEnum.NORMAL.value)
                                         
-        self._goalkeeper_section_task = FollowAlly(ally_id=0, max_speed=30, acceptance_radius=25) #37
+        self._goalkeeper_section_task = FollowAlly(ally_id=0, max_speed=60, acceptance_radius=25) #37
                                                                         
         tree.add_child(self._goalkeeper_section_task)
         tree.add_child(AlignWithAxis())
@@ -80,11 +80,11 @@ class Defender(BaseTree):
     # Mark ball when it is in enemy side
     def go_to_defender_area_then_mark(self):
         tree = Sequence("GoToDefenderAreaThenMark")
-        tree.add_child(GoToDefenseRange(blackboard_key='robot', speed=75))
+        tree.add_child(GoToDefenseRange(blackboard_key='robot', speed=150))
 
         # TODO: Validar estas alterações -> zagueiro se move em direção ao y da bola em um X fixo (olhar self.run).
         # Depois de se mover, forçamos alinhamento com o eixo Y para facilitar movimentação
-        self._mark_ball_task = GoToPosition(max_speed=60, acceptance_radius=AcceptanceRadiusEnum.LARGE.value)
+        self._mark_ball_task = GoToPosition(max_speed=100, acceptance_radius=AcceptanceRadiusEnum.LARGE.value)
         tree.add_child(self._mark_ball_task)
         tree.add_child(AlignWithAxis())
 
