@@ -20,7 +20,7 @@ from strategy.arena_utils import HALF_ARENA_HEIGHT, get_defense_range_height, LE
 from strategy.behaviour import ACTION, TreeNode
 from strategy.behaviour import TaskStatus, BlackBoard, NO_ACTION
 from strategy.strategy_utils import spin_direction, object_in_defender_range
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from utils.math_utils import predict_speed, angle_between, clamp
 
 from utils.debug_profile import debug_profiler
@@ -70,7 +70,7 @@ class UnivectorTask(ABC):
         self.speed_prediction = speed_prediction
         self._acceptance_radius = acceptance_radius
 
-        univector_list = JsonHandler().read("parameters/univector_constants.json")
+        univector_list = YamlHandler().read("parameters/univector_constants.yml")
 
         # univector
         RADIUS = univector_list['RADIUS']
@@ -664,13 +664,13 @@ class Sleep(TreeNode):
         return TaskStatus.SUCCESS, NO_ACTION
 
 class AutomaticMove(TreeNode):
-    def __init__(self, state, team_side, auto_pos_path='/home/vsss/vsss_ws/src/parameters/replacer_positions.json'):
+    def __init__(self, state, team_side, auto_pos_path='/home/vsss/vsss_ws/src/parameters/replacer_positions.yml'):
         self.state = state
         self.team_side = team_side
         self.auto_pos_path = auto_pos_path
 
     def get_position(self):
-        position_dict = JsonHandler.read(self.auto_pos_path)
+        position_dict = YamlHandler.read(self.auto_pos_path)
         position_dict[self.state][self.team_role]
 
     # def run(self):

@@ -1,0 +1,24 @@
+hsv_ball_max:
+    - 10
+    - 255
+    - 255
+hsv_ball_min:
+    - 1
+    - 172
+    - 145
+hsv_blue_max:
+    - 115
+    - 255
+    - 255
+hsv_blue_min:
+    - 109
+    - 193
+    - 205
+hsv_yellow_max: 
+    - 36
+    - 255
+    - 255
+hsv_yellow_min:
+    - 27
+    - 120
+    - 180

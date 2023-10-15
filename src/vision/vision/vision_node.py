@@ -40,7 +40,7 @@ class VisionNode(Node):
         self.show = False
         self.state_changed = 0
 
-        arena_params = "parameters/ARENA.json"
+        arena_params = "parameters/ARENA.yml"
         colors_params = "parameters/COLORS.bin"
 
         try:

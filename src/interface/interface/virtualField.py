@@ -7,10 +7,10 @@ import numpy as np
 import time
 from .auxiliary import *
 import copy
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from robot.movement.univector.un_field import UnivectorField
 
-univector_list = JsonHandler().read("parameters/univector_constants.json")
+univector_list = YamlHandler().read("parameters/univector_constants.yml")
 
 # Lambda functions
 

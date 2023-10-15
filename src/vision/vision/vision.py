@@ -15,7 +15,7 @@ from vision.seekers.things_seeker import HawkEye
 from vision.seekers.things_seeker import Things
 from vision import COLORS
 from sys_interfaces.msg import GameTopic
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from vision.ros_vision_publisher import RosVisionPublisher
 from rclpy.qos import QoSPresetProfiles
 from vision.seekers.circular_color_tag_seeker import CircularColorTagSeeker
@@ -205,8 +205,8 @@ class Vision:
 
     def load_params(self):
         """ Loads the warp matrix and the arena vertices from the arena parameters file"""
-        params = JsonHandler.read(self.params_file_name)
-        self.seekers = JsonHandler.read("parameters/game.json")["seekers"]
+        params = YamlHandler.read(self.params_file_name)
+        self.seekers = YamlHandler.read("parameters/game.yml")["seekers"]
         self.arena_vertices = np.array(params['arena_vertices'])
         self.warp_matrix = np.asarray(params['warp_matrix']).astype("float32")
         self.arena_size = (params['arena_size'][0], params['arena_size'][1])
@@ -363,9 +363,9 @@ if __name__ == "__main__":
     num_blue_robots = 1
     home_tag = "aruco"
 
-    arena_params = "../parameters/ARENA.json"
+    arena_params = "../parameters/ARENA.yml"
     colors_params = "../parameters/COLORS.bin"
-    camera = Camera(sys.argv[1], "../parameters/CAMERA_ELP-USBFHD01M-SFV.json", threading=True)
+    camera = Camera(sys.argv[1], "../parameters/CAMERA_ELP-USBFHD01M-SFV.yml", threading=True)
 
     v = Vision(camera, num_blue_robots, num_yellow_robots, arena_params,
                colors_params, method="color_segmentation")

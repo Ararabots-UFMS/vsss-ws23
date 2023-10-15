@@ -2,16 +2,16 @@ import sys
 import os
 import numpy as np
 #sys.path[0] = root_path = os.environ['ROS_ARARA_ROOT'] + "src/"
-#path = sys.path[0] + 'parameters/univector_constants.json'
+#path = sys.path[0] + 'parameters/univector_constants.yml'
 from utils.math_utils import angle_between, distancePoints, unitVector, forward_min_diff, raio_vetores, get_orientation_and_angle, predict_speed
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 
 from ..control.PID import PID
 from ..univector.un_field import UnivectorField
 from rospy import logfatal
 from utils.linalg import *
 
-univector_list = JsonHandler().read("parameters/univector_constants.json")
+univector_list = YamlHandler().read("parameters/univector_constants.yml")
 
 # univector
 RADIUS = univector_list['RADIUS']

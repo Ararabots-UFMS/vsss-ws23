@@ -8,7 +8,7 @@ import pickle
 import os
 from rclpy.node import Node
 
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 
 # @author Wellington Castro <wvmcastro>
 
@@ -26,7 +26,7 @@ class Camera:
         self.thread_stopped = True
         self.is_file = os.path.isfile(self.id)
 
-        self.json_handler = JsonHandler()
+        self.yaml_handler = YamlHandler()
         self.frame = None
 
         if self.params_file_name != "":

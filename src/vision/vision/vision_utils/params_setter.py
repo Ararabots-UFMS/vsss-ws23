@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 
 from vision.camera_module.camera import Camera
 from vision import COLORS
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 
 class ParamsSetter:
 
@@ -198,12 +198,12 @@ class ParamsSetter:
             return True
 
     def save_params(self):
-        json_handler = JsonHandler()
+        yaml_handler = YamlHandler()
 
         if(self.params_file == ""):
             self.params_file = input("Please insert params file name: ")
 
-        params = json_handler.read(self.params_file)
+        params = yaml_handler.read(self.params_file)
 
         if not (self.matrix_transform is None) and not (self.arena_size is None):
             params['warp_matrix'] = self.matrix_transform.tolist()
@@ -213,7 +213,7 @@ class ParamsSetter:
         if not(self.value_min is None):
             params['value_min'] = self.value_min.tolist()
 
-        return json_handler.write(params, self.params_file)
+        return yaml_handler.write(params, self.params_file)
 
     def print_manual(self):
         print("-------------------------------------------")
@@ -308,11 +308,11 @@ def makeArgParser() -> ArgumentParser:
     parser.add_argument("device", type=str, default="0", help="camera device")
     parser.add_argument("--camera_params_file", 
                          type=str, 
-                         default="../../parameters/CAMERA_ELP-USBFHD01M-SFV.json",
+                         default="../../parameters/CAMERA_ELP-USBFHD01M-SFV.yml",
                          help="camera params file for lens correction")
     parser.add_argument("--arena_params_file",
                         type=str,
-                        default="../../parameters/ARENA.json",
+                        default="../../parameters/ARENA.yml",
                         help="color params file to store the color thresholds")
     return parser
 

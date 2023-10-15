@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from utils.json_handler import JsonHandler
 from utils.model import Model
 # from utils.process_killer import ProcessKiller
 from interface.Controller.MainWindowController import MainWindowController

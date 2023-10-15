@@ -1,9 +1,8 @@
-import json
 from utils.socket_interfaces import SenderSocket
 import socket
 import struct
 # import rospy
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from abc import ABC, abstractmethod
 
 import referee.vssref_placement_pb2 as placement_pb2
@@ -59,7 +58,7 @@ class PlaceHolderFactory(CMDFactory):
 class StandardFactory(CMDFactory):
 
     '''
-    Fábrica de comandos de reposicionamento simples que apenas lê os posicionamentos especificados no arquivo JSON,
+    Fábrica de comandos de reposicionamento simples que apenas lê os posicionamentos especificados no arquivo YAML,
     os ajusta dependendo do lado do campo em que a penalidade ocorreu. 
     '''
 
@@ -243,8 +242,7 @@ class ReplacerInterface:
         self.team_side = team_side
         self.team_color = team_color
 
-        # TODO: usar o JSON handler
-        self.all_positions = JsonHandler().read("parameters/replacer_positions.json")
+        self.all_positions = YamlHandler().read("parameters/replacer_positions.yml")
 
         self.socket = SenderSocket.create(self.UDP_IP, self.UDP_PORT)
         

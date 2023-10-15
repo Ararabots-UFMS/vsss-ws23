@@ -1,58 +1,55 @@
-{
-    "KICKOFF": 
-    {   
-        "ATTACK":
-        [
-            {
-                "id": 0,
-                "role": "goalkeeper",
-                "x": -0.7,
-                "y": 0,
-                "orientation": 0
-            },
-            {
-                "id": 1,
-                "role": "defender",
-                "x": -0.4,
-                "y": 0,
-                "orientation": 0
-            },
-            {
-                "id": 2,
-                "role": "attacker",
-                "x": -0.25,
-                "y": 0,
-                "orientation": 0
-            }
+KICKOFF: {   
+    "ATTACK":
+    [
+        {
+            "id": 0,
+            "role": "goalkeeper",
+            "x": -0.7,
+            "y": 0,
+            "orientation": 0
+        },
+        {
+            "id": 1,
+            "role": "defender",
+            "x": -0.4,
+            "y": 0,
+            "orientation": 0
+        },
+        {
+            "id": 2,
+            "role": "attacker",
+            "x": -0.25,
+            "y": 0,
+            "orientation": 0
+        }
 
-        ],
-        "DEFENCE":
-        [
-            {
-                "id": 0,
-                "role": "goalkeeper",
-                "x": -0.7,
-                "y": 0,
-                "orientation": 0
-            },
-            {
-                "id": 1,
-                "role": "defender",
-                "x": -0.35,
-                "y": 0,
-                "orientation": 0
-            },
-            {
-                "id": 2,
-                "role": "attacker",
-                "x": -0.07,
-                "y": -0,
-                "orientation": 0
-            }
-        ]
-    },
-    "PENALTY": 
-    {   
+    ],
+    "DEFENCE":
+    [
+        {
+            "id": 0,
+            "role": "goalkeeper",
+            "x": -0.7,
+            "y": 0,
+            "orientation": 0
+        },
+        {
+            "id": 1,
+            "role": "defender",
+            "x": -0.35,
+            "y": 0,
+            "orientation": 0
+        },
+        {
+            "id": 2,
+            "role": "attacker",
+            "x": -0.07,
+            "y": -0,
+            "orientation": 0
+        }
+    ]
+    }
+PENALTY: {   
         "ATTACK":
         [
             {
@@ -102,9 +99,8 @@
                 "orientation": 0
             }
         ]
-    },
-    "GOAL_KICK":
-    {   
+    }
+GOAL_KICK: {   
         "ATTACK":
         [
             {
@@ -154,8 +150,8 @@
                 "orientation": -45
             }
         ]
-    },
-    "FREE_BALL": 
+    }
+FREE_BALL: 
     [
         {
             "id": 0,
@@ -181,4 +177,3 @@
             "orientation": 90
         }
     ]
-}

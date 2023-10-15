@@ -1,0 +1,30 @@
+robot_1:
+    active: 1
+    bluetooth_mac_address: ceci
+    body_id: ceci
+    role: Defender
+    tag_number: 2
+robot_2:
+    active: 1
+    bluetooth_mac_address: noriko
+    body_id: noriko
+    role: Goalkeeper
+    tag_number: 1
+robot_3:
+    active: 1
+    bluetooth_mac_address: viscoso
+    body_id: viscoso
+    role: Attacker
+    tag_number: 0
+robot_4:
+    active: 0
+    bluetooth_mac_address: walle
+    body_id: walle
+    role: Attacker
+    tag_number: 0
+robot_5:
+    active: 0
+    bluetooth_mac_address: nenhum
+    body_id: nenhum
+    role: Attacker
+    tag_number: 4

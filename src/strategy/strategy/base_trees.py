@@ -109,8 +109,10 @@ class AutomaticPosition(Sequence):
 
     def run(self, blackboard: BlackBoard):
         # log_warn(f'{blackboard.robot.role} --> {self.children[1].position}')
-        available_positions = list(blackboard.automatic_positions.values())
-        position = available_positions[blackboard.current_automatic_position][f'{blackboard.robot.role}']['pos1']
+        
+        # used when json was a thing 
+        # available_positions = list(blackboard.automatic_positions.values())
+        position = blackboard.automatic_positions[blackboard.current_automatic_position][f'{blackboard.robot.role}']['pos1']
         self.children[1].position = Vec2D.from_array(position)
         return super().run(blackboard)
 

@@ -7,7 +7,7 @@ import pickle
 import os
 
 from argparse import ArgumentParser
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from vision.camera_module.camera import Camera
 from vision import COLORS
 
@@ -17,7 +17,7 @@ from vision import COLORS
 class ColorSegmentation:
 
     def __init__(self, cam, color_params_file=""):
-        self.json_handler = JsonHandler()
+        self.yaml_handler = YamlHandler()
         self.params_file = color_params_file
         self.camera = cam
 
@@ -170,7 +170,7 @@ def makeArgParser() -> ArgumentParser:
     parser.add_argument("device", type=str, default="0", help="camera device")
     parser.add_argument("--camera_params_file",
                         type=str,
-                        default="../../parameters/CAMERA_ELP-USBFHD01M-SFV.json",
+                        default="../../parameters/CAMERA_ELP-USBFHD01M-SFV.yml",
                         help="camera params file for lens correction")
     parser.add_argument("--color_params_file",
                         type=str,

@@ -20,9 +20,9 @@ class GameTopicPublisher:
                        _robot_name_roles: dict = None, 
                        owner_id = 'Player_One'):
         """
-        :param _game_opt: Game json
-        :param _robot_params: Robots Json
-        :param _robot_name_roles: Robot roles Json
+        :param _game_opt: Game dict
+        :param _robot_params: Robots dict
+        :param _robot_name_roles: Robot roles dict
         :param owner_id: int
         """
 

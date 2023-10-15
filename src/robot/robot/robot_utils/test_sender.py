@@ -1,4 +1,4 @@
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from collections import OrderedDict
 import socket
 
@@ -29,7 +29,7 @@ def send_packet(packet: str, sock: socket.socket) -> None:
 if __name__ == "__main__":
     helper()
     stop = '0 0 0'
-    bluetooths = OrderedDict(JsonHandler.read("parameters/bluetooth.json"))
+    bluetooths = OrderedDict(YamlHandler.read("parameters/bluetooth.yml"))
     show_addresses(bluetooths)
     arg = input("mac address: ")
     mac_address = solve_mac(arg, bluetooths)

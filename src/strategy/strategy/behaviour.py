@@ -10,7 +10,7 @@ from robot.movement.definitions import OpCodes
 from strategy.arena_utils import RIGHT, LEFT
 from strategy.strategy_utils import GameStates
 from utils import physics
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from utils.linalg import *
 
 angle = distance = float
@@ -43,7 +43,7 @@ class BlackBoard:
         self.enemy_team = EnemyTeam()
 
         self.current_automatic_position : int = 0
-        self.automatic_positions = JsonHandler.read("parameters/automatic_positions.json", escape=True)
+        self.automatic_positions = YamlHandler.read("parameters/automatic_positions.yml", escape=True)
 
     def set_robot_variables(self, robot_id,
                                   robot_position, 

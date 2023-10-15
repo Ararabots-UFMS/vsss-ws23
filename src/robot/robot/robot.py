@@ -15,7 +15,7 @@ from strategy.behaviour import BlackBoard, TaskStatus, OpCodes
 from strategy.defender import Defender
 from strategy.goalkeeper import GoalKeeper
 from strategy.pid_calibration import CalibrationTree
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 from utils.linalg import *
 from utils.watcher import watcher
 
@@ -121,7 +121,7 @@ class Robot(Node):
 
     def get_pid_constants_set(self) -> List[Tuple]:
         pid_set = []
-        bodies = JsonHandler.read("parameters/bodies.json", escape=True)
+        bodies = YamlHandler.read("parameters/bodies.yml", escape=True)
         try:
             pid_dict = bodies[self.robot_body]
         except KeyError:

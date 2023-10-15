@@ -3,7 +3,7 @@ This is a Ros2 Workspace ported from the previous [VSS Repository](https://githu
 The main package was splitted in to 14 packages:
 - **interface:** Simple MVC Interface built upon the FLTK framework.
 - **launch_files:** Contains only the launch files for quickly starting the system.
-- **parameters:** Not exacly a package since it only stores common json files.
+- **parameters:** Not exacly a package since it only stores common yaml files.
 - **referee(WIP):** Reads commands from the [Referee](https://github.com/VSSSLeague/VSSReferee) for publishing in the *game_topic*. 
 - **robot:** The main robot node that reads from the *game_topic* and *things_position* topics, execute
 

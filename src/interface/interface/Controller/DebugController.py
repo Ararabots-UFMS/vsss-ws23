@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from interface.View.DebugView import DebugView
 import fltk as fl
-from utils.json_handler import JsonHandler
+from utils.yaml_handler import YamlHandler
 
 
 class DebugController():
