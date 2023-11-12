@@ -5,8 +5,9 @@ from rclpy.node import Node
 from sys_interfaces.msg import GameTopic
 from sys_interfaces.srv import VisionCommand, MessageServerService
 from message_server.opcodes import ServerOpCode
-
-
+import numpy as np
+import platform
+from rclpy.qos import QoSPresetProfiles
 class GameTopicPublisher:
     """
     This class can publish Game related messages on a 'Game topic' Topic
@@ -30,8 +31,12 @@ class GameTopicPublisher:
         # else is only a publisher
         self.name = 'game_topic'
         self.owner_id = str(owner_id)
+        self.game_topic_name = np.zeros(256, dtype=np.uint8)
+        #TODO: Talvez nao seja a melhor maneira, revisar
+        for c_index, character in enumerate(list((self._node.get_namespace()+'\0').encode())):
+            self.game_topic_name[c_index] = character
 
-        self.pub = node.create_publisher(GameTopic, self.name, qos_profile=1)
+        self.pub = node.create_publisher(GameTopic, self.name, qos_profile=QoSPresetProfiles.SYSTEM_DEFAULT.value)
         self.msg = GameTopic()
         self.msg.robot_roles = [0, 0, 0, 0, 0]
         self.msg.robot_tags = [0, 0, 0, 0, 0]
@@ -178,13 +183,14 @@ class GameTopicPublisher:
             self._node.get_logger().fatal(exception)
 
     def _register_messageserver_service(self, owner_id=None):
-        self.message_server_name = 'message_server_service'
+        self.message_server_name = '/'+platform.node().replace('-','_')+'/message_server_service'
         # wait_for_service(self.message_server_name)
         self._messageserver_proxy = self._node.create_client(MessageServerService,
                                                 self.message_server_name)
 
     def add_or_remove_socket_on_messageserver(self, opcode: int,
                                               socket_id: int,
+                                              socket_offset: int,
                                               mac_addr: List[int]) -> int:
         # wait_for_service(self.message_server_name)
         try:
@@ -192,6 +198,8 @@ class GameTopicPublisher:
             
             request.opcode = opcode
             request.socket_id = socket_id
+            request.socket_offset = socket_offset
+            request.game_topic_name = self.game_topic_name
             #TODO: Arrumar isso aqui, ta feio (Bluetooth)
             request.robot_mac_addr[0] = mac_addr[0]
             request.robot_mac_addr[1] = mac_addr[1]

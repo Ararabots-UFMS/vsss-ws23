@@ -86,6 +86,12 @@ class MessageServer:
 
         return response
 
+    def _expand_arrays(self):
+        self._sockets_status += np.zeros(self._capacity, dtype= np.uint8)
+        self._devices += [None for _ in range(5)]
+        self._tasks += [None for _ in range(5)]
+        self._devices_queue += [deque(maxlen=10) for _ in range(5)]
+
     def _add_socket(self, socket_id: int, mac_address: bytes) -> ServerOpCode:
         response = ServerOpCode.ERROR
         # self._loop = asyncio.get_event_loop()
@@ -93,6 +99,9 @@ class MessageServer:
                 not self._mac_been_used(mac_address):
 
             mac_str = ":".join("%02x" % b for b in mac_address)
+
+        if socket_id >= self._capacity:
+            self._expand_arrays()
 
         device = BluetoothDevice(socket_id, mac_str, self._node, self._devices_queue[socket_id])
         self._devices[socket_id] = device
