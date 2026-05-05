@@ -4,7 +4,7 @@
 ## Pré-requisitos
 
 - Docker instalado
-- Câmera USB conectada (`/dev/video0` ~ `/dev/video3`)
+- Câmera USB conectada (`/dev/video*`)
 - ESP32 conectado via USB (`/dev/ttyUSB0`)
 - Arquivo `pyFltk-1.3.4.1_py3.tar.gz` no mesmo diretório do `Dockerfile`
 
