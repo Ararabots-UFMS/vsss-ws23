@@ -31,11 +31,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ros-humble-ros-base=0.10.0-1* \
 && rm -rf /var/lib/apt/lists/*
 WORKDIR /vsss
-RUN git clone https://github.com/Ararabots-UFMS/vsss_ws.git
+RUN git clone -b feat/new_docker_image https://github.com/Ararabots-UFMS/vsss-ws23.git vsss_ws
 WORKDIR /vsss/vsss_ws
 # requirements
-# TODO: fix this file on main branch
-RUN git checkout now_msg_server
 RUN pip install -r requirements.txt
 RUN pip install opencv-python
 RUN pip install Pillow
@@ -58,8 +56,4 @@ RUN cd /opt && \
     cd pyFltk-1.3.4.1 && \
     python3 setup.py build install
 WORKDIR /vsss/vsss_ws
-
-RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> ~/.bashrc && \
-    echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc && \
-    echo "source /vsss/vsss_ws/install/local_setup.bash" >> ~/.bash && \
-    echo "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/lib" >> ~/.bashrc
+RUN echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib" >> ~/.bashrc
