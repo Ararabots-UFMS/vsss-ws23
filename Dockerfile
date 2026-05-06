@@ -31,7 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ros-humble-ros-base=0.10.0-1* \
 && rm -rf /var/lib/apt/lists/*
 WORKDIR /vsss
-RUN git clone -b feat/new_docker_image https://github.com/Ararabots-UFMS/vsss-ws23.git vsss_ws
+COPY ./vsss-ws23/ ./vsss_ws/
 WORKDIR /vsss/vsss_ws
 # requirements
 RUN pip install -r requirements.txt
