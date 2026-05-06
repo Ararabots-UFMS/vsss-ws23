@@ -26,7 +26,7 @@ xhost +local:docker && docker run -it \
   --device=/dev/video* \
   --device=/dev/ttyUSB* \
   --network host \
-  vsss-ros bash --login
+  vsss-ros bash
 
 ```
 
