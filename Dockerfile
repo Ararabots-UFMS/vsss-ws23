@@ -38,9 +38,6 @@ RUN pip install -r requirements.txt
 RUN pip install opencv-python
 RUN pip install Pillow
 # environment variables
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
-RUN echo "export ROS_ARARA_ROOT=$PWD/" >> ~/.bashrc
-RUN echo "source $PWD/install/local_setup.bash" >> ~/.bashrc
 # build the workspace
 RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
 colcon build --packages-select sys_interfaces --allow-overriding sys_interfaces && \
