@@ -1,5 +1,5 @@
 from setuptools.command.develop import develop as _develop
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 class DevelopCompat(_develop):
@@ -27,7 +27,7 @@ package_name = 'interface'
 setup(
     name=package_name,
     version='0.0.0',
-    packages=[package_name],
+    packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
