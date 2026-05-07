@@ -1,4 +1,26 @@
+from setuptools.command.develop import develop as _develop
 from setuptools import setup
+
+
+class DevelopCompat(_develop):
+    """develop command that accepts colcon-specific options."""
+    user_options = _develop.user_options + [
+        ('script-dir=', None, 'install scripts directory'),
+        ('uninstall', 'u', 'uninstall'),
+        ('editable', 'e', 'editable'),
+        ('build-directory=', None, 'build directory'),
+    ]
+    boolean_options = _develop.boolean_options + ['uninstall', 'editable']
+
+    def initialize_options(self):
+        super().initialize_options()
+        self.uninstall = False
+        self.editable = False
+        self.build_directory = None
+        self.script_dir = None
+
+    def finalize_options(self):
+        super().finalize_options()
 
 package_name = 'message_server'
 
@@ -23,4 +45,5 @@ setup(
             'MessageServerNode = message_server.message_server_node:main',
         ],
     },
+    cmdclass={'develop': DevelopCompat},
 )
