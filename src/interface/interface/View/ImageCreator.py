@@ -11,7 +11,7 @@ class ImageCreator:
         self.img_org = Image.open(self.image_file)
 
         # best down-sizing filter
-        self.img_anti = self.img_org.resize((width, height), Image.ANTIALIAS)
+        self.img_anti = self.img_org.resize((width, height), Image.Resampling.LANCZOS)
         # split image filename into name and extension
         name, ext = os.path.splitext(self.image_file)
         # create a new file name for saving the result

@@ -21,8 +21,10 @@ def evaluate_params(context, *args, **kwargs):
     message_server_arg = LaunchConfiguration('message_server')
 
     try:
-        message_server = message_server_dict[message_server_arg]
-    except ValueError as exception:
+        # Perform substitution to get the actual string value
+        message_server_value = context.perform_substitution(message_server_arg)
+        message_server = message_server_dict[message_server_value]
+    except (KeyError, ValueError) as exception:
         print(exception)
         message_server = "now_message_server"
 
@@ -34,7 +36,7 @@ def evaluate_params(context, *args, **kwargs):
             name='vision'
         ),
         Node(
-            package=message_server
+            package=message_server,
             namespace=user_namespace,
             executable='MessageServerNode',
             name='message_server',
